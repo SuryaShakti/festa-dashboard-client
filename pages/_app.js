@@ -14,11 +14,11 @@ function MyApp({ Component, pageProps }) {
   else if (Component.layout) Layout = Component.layout;
 
   useEffect(() => {
-    if (Router.pathname !== "/login") {
+    if (Router.pathname !== "/") {
       setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
-        Router.push("/login");
+        Router.push("/");
         setLoading(false);
       } else {
         setLoading(false);
