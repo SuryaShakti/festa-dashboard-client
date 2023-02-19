@@ -38,27 +38,51 @@ const createdEvents = () => {
 
   const removeDraft = async (id) => {
     const token = localStorage.getItem("token");
-    console.log(`Removing ${id}`)
+    console.log(`Removing ${id}`);
 
-    // var config = {
-    //   method: "delete",
-    //   maxBodyLength: Infinity,
-    //   url: `https://api.test.festabash.com/v1/event-management/event/${id}`,
-    //   headers: {
-    //     Authorization:
-    //       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJzdWIiOiI2M2MzY2EwNjAwMDNkYjM2YjNiM2U2MTAiLCJpYXQiOjE2NzQ1Mzk2ODIsImV4cCI6MTY3NzEzMTY4MiwiYXVkIjoiaHR0cHM6Ly95b3VyZG9tYWluLmNvbSIsImlzcyI6ImZlYXRoZXJzIiwianRpIjoiMWFhMTMwZGEtNDAyOS00ZWZlLTgyMDItNTExYTA3ZDNiZDQ3In0.GBYcq4YMikuNGFpL8t6fPrTCjEE1NyqxuDCIjkmM8Iw",
-    //   },
-    // };
+    var config = {
+      method: "delete",
+      maxBodyLength: Infinity,
+      url: `https://api.test.festabash.com/v1/event-management/event/${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
-    // await axios(config)
-    //   .then(function (response) {
-    //     console.log(JSON.stringify(response.data));
-    //     const _data = data;
-    //     setData(_data.filter((item, index) => item._id !== response.data._id));
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
+    await axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+        const _data = data;
+        setData(_data.filter((item, index) => item._id !== response.data._id));
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const createEventHandler = () => {
+    var data = JSON.stringify({});
+    const token = localStorage.getItem("token");
+
+    var config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: "https://api.test.festabash.com/v1/event-management/event",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        router.push(`/create-event?eventId=${response.data._id}`);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   return (
@@ -73,7 +97,7 @@ const createdEvents = () => {
           <div className="ml-4 mt-2 flex-shrink-0">
             <button
               type="button"
-              onClick={() => router.push("/create-event")}
+              onClick={() => createEventHandler()}
               className="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Create new Event
@@ -85,7 +109,7 @@ const createdEvents = () => {
         <CardsContainer
           data={data}
           section="created-events"
-          removeDraft={() => removeDraft(id)}
+          removeDraft={(id) => removeDraft(id)}
         />
       </div>
     </div>

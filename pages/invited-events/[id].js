@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ChatAlt2Icon, ChatAltIcon, HeartIcon } from "@heroicons/react/outline";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 
 const InvitedEventDetails = () => {
   const [status, setStatus] = useState(0);
@@ -118,6 +119,33 @@ const InvitedEventDetails = () => {
     }
   }, [router.query.id]);
 
+  const containerStyle = {
+    width: "400px",
+    height: "400px",
+  };
+
+  const center = {
+    lat: -3.745,
+    lng: -38.523,
+  };
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: "AIzaSyCDCQBnv82-gPUl8bkOuTyQdoELx2nm8eI",
+  });
+
+  const [map, setMap] = React.useState(null);
+
+  const onLoad = React.useCallback(function callback(map) {
+    const bounds = new window.google.maps.LatLngBounds(center);
+    map.fitBounds(bounds);
+
+    setMap(map);
+  }, []);
+
+  const onUnmount = React.useCallback(function callback(map) {
+    setMap(null);
+  }, []);
+
   return (
     <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
       <div className="">
@@ -229,7 +257,10 @@ const InvitedEventDetails = () => {
                       key={index}
                       className="w-full z-50 bg-gray-200 shadow-xl my-3 p-3 rounded-xl"
                     >
-                      <img className="w-full mb-2 rounded-lg" src={post.image[0]} />
+                      <img
+                        className="w-full mb-2 rounded-lg"
+                        src={post.image[0]}
+                      />
                       <div className="w-full flex justify-between items-center">
                         <div className="flex-1">
                           <div className="text-lg font-bold mb-2">
@@ -339,7 +370,24 @@ const InvitedEventDetails = () => {
                         Show map with longitude {data?.address?.coordinates[0]}{" "}
                         and latitude {data?.address?.coordinates[1]}
                       </p>
-                      <div className="h-60 w-full bg-green-100 my-2"></div>
+                      {isLoaded ? (
+                        <GoogleMap
+                          mapContainerStyle={containerStyle}
+                          center={{
+                            lat: data?.address?.coordinates[1],
+                            lng: data?.address?.coordinates[0],
+                          }}
+                          zoom={10}
+                          onLoad={onLoad}
+                          onUnmount={onUnmount}
+                        >
+                          {/* Child components, such as markers, info windows, etc. */}
+                          <></>
+                        </GoogleMap>
+                      ) : (
+                        <></>
+                      )}
+                      {/* <div className="h-60 w-full bg-green-100 my-2"></div> */}
                     </div>
 
                     <div className="mt-4">

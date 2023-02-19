@@ -25,7 +25,6 @@ import {
 import { useRouter } from "next/router";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon, current: true },
   {
     name: "Created Events",
     href: "/created-events",
@@ -129,18 +128,24 @@ export default function DefaultLayout({ children }) {
                     <a href="#" className="flex-shrink-0 group block">
                       <div className="flex items-center">
                         <div>
-                          <img
-                            className="inline-block h-10 w-10 rounded-full"
-                            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                            alt=""
-                          />
+                          {user.avatar ? (
+                            <img
+                              className="inline-block h-9 w-9 rounded-full"
+                              src={user.avatar ? user.avatar : "s"}
+                              alt=""
+                            />
+                          ) : (
+                            <div className="h-9 w-9 rounded-full bg-teal-300 flex justify-center items-center text-white shadow-lg text-xl font-bold">
+                              {user?.name ? user.name[0] : ""}
+                            </div>
+                          )}
                         </div>
                         <div className="ml-3">
                           <p className="text-base font-medium text-white">
-                            Tom Cook
+                            {user.name}
                           </p>
                           <p className="text-sm font-medium text-indigo-200 group-hover:text-white">
-                            View profile
+                            {user.phone}
                           </p>
                         </div>
                       </div>

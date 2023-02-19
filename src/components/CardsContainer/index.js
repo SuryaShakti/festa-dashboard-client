@@ -12,7 +12,7 @@ const CardsContainer = ({ data, section, removeDraft }) => {
             key={index}
             item={item}
             section={section}
-            removeDraft={() => removeDraft(id)}
+            removeDraft={(id) => removeDraft(id)}
           />
         ) : (
           <InvitedEventCard key={index} item={item} section={section} />

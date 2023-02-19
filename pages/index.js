@@ -102,7 +102,7 @@ const Home = () => {
               console.log(response.data);
               localStorage.setItem("token", response.data.accessToken);
               localStorage.setItem("user", response.data.user);
-              router.push("/dashboard");
+              router.push("/created-events");
             })
             .catch(function (error) {
               console.log(error);
@@ -110,7 +110,7 @@ const Home = () => {
         } else {
           localStorage.setItem("token", response.data.accessToken);
           localStorage.setItem("user", JSON.stringify(response.data.user));
-          router.push("/dashboard");
+          router.push("/created-events");
           return;
         }
       })

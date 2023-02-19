@@ -2,16 +2,33 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { UserCircleIcon } from "@heroicons/react/outline";
+import { Dialog, RadioGroup, Transition } from "@headlessui/react";
+import {
+  ChatAltIcon,
+  HeartIcon,
+  PencilAltIcon,
+  TrashIcon,
+  UserCircleIcon,
+} from "@heroicons/react/outline";
+import { DateRangePicker } from "react-date-range";
+import "react-date-range/dist/styles.css"; // main style file
+import "react-date-range/dist/theme/default.css"; // theme css file
+import Image from "next/image";
+import MapAutocomplete from "../../src/components/MapAutocomplete";
+import ImageUploading from "react-images-uploading";
+import Spinner from "../../src/components/Spinner";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const index = () => {
   const router = useRouter();
   const [title, setTitle] = useState("");
+  const [eventId, setEventId] = useState("");
   const [description, setDescription] = useState("");
   const [profilePic, setProfilePic] = useState("");
   const [profilePicPath, setProfilePicPath] = useState("");
-  const [address, setAddress] = useState("");
+  const [profilePicUrl, setProfilePicUrl] = useState("");
+  // const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [subevents, setSubevents] = useState([]);
   const [photos, setPhotos] = useState([]);
@@ -28,10 +45,262 @@ const index = () => {
   const [posts, setPosts] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState(0);
+  const [data, setData] = useState([]);
+  const [dateOpen, setDateOpen] = useState(false);
+  const [selectedDates, setSelectedDates] = useState([
+    {
+      startDate: new Date(),
+      endDate: null,
+      key: "selection",
+    },
+  ]);
+  const [eventTypes, setEventTypes] = useState([]);
+  const [selectedEventType, setSelectedEventType] = useState(null);
+  const [venueOpen, setVenueOpen] = useState(false);
+  const [chatboxOpen, setChatboxOpen] = useState(false);
+  const [postTitle, setPostTitle] = useState("");
+  const [postDescription, setPostDescription] = useState("");
+  const [postImage, setPostImage] = useState("");
+  const [postImageUrl, setPostImageUrl] = useState("");
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [profileUploading, setProfileUploading] = useState(false);
+  const [postError, setPostError] = useState("");
+  const [creatingPost, setCreatingPost] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
+  const [hostLoading, setHostLoading] = useState(false);
+  const [addressLine, setAddressLine] = useState("");
+  const [cityText, setCityText] = useState("");
+  const [address, setAddress] = useState({
+    addressLine1: addressLine,
+    city: cityText,
+    coordinates: [],
+  });
+
+  const onChange = async (imageList, addUpdateIndex) => {
+    // data for submit
+    console.log(imageList[0].file);
+    setProfilePic(imageList);
+
+    await imageUpload(imageList[0].file, "profile");
+  };
+
+  const createPost = async () => {
+    const token = localStorage.getItem("token");
+
+    if (postTitle.trim() === "") {
+      setPostError("Post title is requied");
+      return;
+    } else if (postDescription.trim() === "") {
+      setPostError("Post description is requied");
+      return;
+    } else if (postImageUrl.trim() === "") {
+      setPostError("Post Image is requied");
+      return;
+    } else {
+      setPostError("");
+      setCreatingPost(true);
+      var data = JSON.stringify({
+        title: postTitle,
+        description: postDescription,
+        image: postImageUrl,
+        event: eventId,
+      });
+
+      var config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: "https://api.test.festabash.com/v1/post",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      await axios(config)
+        .then(function (response) {
+          console.log(response.data);
+          setPosts([...posts, response.data]);
+          toast.success("Post Created successfully", {
+            position: "bottom-right",
+          });
+          setPostTitle("");
+          setPostImage("");
+          setPostDescription("");
+          setStatus(0);
+          setCreatingPost(false);
+        })
+        .catch(function (error) {
+          console.log(error);
+          setCreatingPost(false);
+        });
+    }
+  };
+
+  const dataURLtoFile = (dataurl, filename) => {
+    let arr = dataurl.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    console.log(new File([u8arr], filename, { type: mime }));
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  const imageUpload = async (blob, type) => {
+    const token = localStorage.getItem("token");
+
+    var formdata = new FormData();
+    formdata.append("file", blob);
+
+    console.log(formdata);
+    type === "profile"
+      ? setProfileUploading(true)
+      : type === "post"
+      ? setUploadLoading(true)
+      : setPhotoUploading(true);
+
+    var requestOptions = {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formdata,
+      redirect: "follow",
+    };
+    await fetch("https://api.test.festabash.com/v1/upload", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result[0].link);
+        type === "profile"
+          ? setProfilePicUrl(result[0].link)
+          : setPostImageUrl(result[0].link);
+        setUploadLoading(false);
+        setProfileUploading(false);
+        setPhotoUploading(false);
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  const fetchData = async () => {
+    const token = localStorage.getItem("token");
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/event-management/event/${router?.query.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        console.log(response.data.attachments[0]);
+        setTitle(response.data.name ? response.data.name : "");
+        setDescription(response.data.description ? response.data.description : "");
+        setSelectedEventType(response.data.eventType);
+        setSelectedDates([
+          {
+            startDate: response?.data?.startTime
+              ? new Date(response.data.startTime)
+              : new Date(),
+            endDate: response?.data?.endTime
+              ? new Date(response.data.endTime)
+              : null,
+            key: "selection",
+          },
+        ]);
+        setProfilePicUrl(
+          response?.data?.attachments[0] ? response.data.attachments[0] : ""
+        );
+        setData(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const fetchSubEvents = async () => {
+    const token = localStorage.getItem("token");
+
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/sub-event-management/sub-event?event=${router.query.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log("***********", response.data.data);
+        setSubevents(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const getPosts = async () => {
+    const token = localStorage.getItem("token");
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/post?event=${router.query.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    // write a code for a map component setting address using google maps autocomplete in reactjs
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        setPosts(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const getPhotos = async () => {
+    const token = localStorage.getItem("token");
+
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/event-management/event-feed?event=${router.query.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        setPhotos(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
 
   useEffect(() => {
-    console.log("hellooo");
-  }, []);
+    console.log("hellooo", router.query.eventId);
+    if (router.query.eventId) {
+      setEventId(router.query.eventId);
+      fetchData();
+      fetchEventTypes();
+      fetchSubEvents();
+      getPosts();
+      getPhotos();
+      getGuestsList();
+      getCoHOstList();
+    }
+  }, [router.query]);
   function closeModal() {
     setIsOpen(false);
   }
@@ -39,18 +308,24 @@ const index = () => {
   function openModal() {
     setIsOpen(true);
   }
+  const handleChange = async (e) => {
+    const file = e.target.files[0];
+    console.log(URL.createObjectURL(file));
+    setProfilePic(
+      dataURLtoFile(URL.createObjectURL(file), "imageToUpload.png")
+    );
+    setProfilePicPath(file);
 
-  const handleChange = (e) => {
-    console.log(URL.createObjectURL(e.target.files[0]));
-    setProfilePic(URL.createObjectURL(e.target.files[0]));
-    setProfilePicPath(e.target.files[0]);
+    const blob = new Blob([URL.createObjectURL(file)], { type: file.type });
+    console.log(blob);
+    await imageUpload(blob);
   };
 
   const addGuest = async () => {
     const token = localStorage.getItem("token");
     setErrorMessage("");
     var data = JSON.stringify({
-      event: router.query.id,
+      event: eventId,
       guests: [
         {
           name: name,
@@ -58,7 +333,7 @@ const index = () => {
         },
       ],
     });
-
+    setGuestLoading(true);
     var config = {
       method: "post",
       url: "https://api.test.festabash.com/v1/event-management/event-guest",
@@ -74,10 +349,12 @@ const index = () => {
         console.log(response.data);
         const _data = guests;
         setGuests([...guests, response.data[0]]);
+        setGuestLoading(false);
       })
       .catch(function (error) {
         console.log(error.response.data.message);
         setErrorMessage(error.response.data.message);
+        setGuestLoading(false);
       });
   };
 
@@ -87,7 +364,7 @@ const index = () => {
 
     var config = {
       method: "delete",
-      url: `https://api.test.festabash.com/v1/event-management/event-guest/${id}?event=${router.query.id}`,
+      url: `https://api.test.festabash.com/v1/event-management/event-guest/${id}?event=${eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -106,11 +383,60 @@ const index = () => {
       });
   };
 
+  const publishEvent = async () => {
+    const token = localStorage.getItem("token");
+
+    if (title.trim() === "") {
+      toast.error("Please enter event name", {
+        position: "bottom-right",
+      });
+      return;
+    } else if (description.trim() === "") {
+      toast.error("Please enter event description", {
+        position: "bottom-right",
+      });
+      return;
+    } else if (profilePicUrl.trim() === "") {
+      toast.error("Please upload image for event", {
+        position: "bottom-right",
+      });
+      return;
+    } else if (!(selectedDates[0].startDate && selectedDates[0].endDate)) {
+      toast.error("Please select Event start time and end time", {
+        position: "bottom-right",
+      });
+      return;
+    } else {
+      var data = JSON.stringify({
+        status: 1,
+      });
+
+      var config = {
+        method: "patch",
+        maxBodyLength: Infinity,
+        url: `https://api.test.festabash.com/v1/event-management/event/${router.query.eventId}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      await axios(config)
+        .then(function (response) {
+          console.log(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
+  };
+
   const addCoHost = async () => {
     const token = localStorage.getItem("token");
     setErrorMessage("");
     var data = JSON.stringify({
-      event: router.query.id,
+      event: eventId,
       cohosts: [
         {
           name: name,
@@ -118,6 +444,7 @@ const index = () => {
         },
       ],
     });
+    setHostLoading(true);
 
     var config = {
       method: "post",
@@ -134,10 +461,12 @@ const index = () => {
         console.log(response.data);
         const _data = coHosts;
         setCoHosts([...coHosts, response.data[0]]);
+        setHostLoading(false);
       })
       .catch(function (error) {
         console.log(error.response.data.message);
         setErrorMessage(error.response.data.message);
+        setHostLoading(false);
       });
   };
 
@@ -146,7 +475,7 @@ const index = () => {
 
     var config = {
       method: "delete",
-      url: `https://api.test.festabash.com/v1/event-management/event-cohost/${id}?event=${router.query.id}`,
+      url: `https://api.test.festabash.com/v1/event-management/event-cohost/${id}?event=${eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -163,6 +492,194 @@ const index = () => {
       .catch(function (error) {
         console.log(error);
       });
+  };
+
+  const [draftLoading, setDraftLoading] = useState(false);
+
+  const draftHandler = () => {
+    const token = localStorage.getItem("token");
+    console.log(data?.attachments[0]);
+
+    var data = {
+      attachments: data?.attachments[0] ? data.attachments[0] : [],
+    };
+
+    if (title?.trim() !== "") {
+      data.name = title;
+    }
+
+    description?.trim() !== "" ? (data.description = description) : null;
+    selectedDates[0]?.startDate && selectedDates[0]?.endDate
+      ? (data.startTime = selectedDates[0].startDate)
+      : null;
+    selectedDates[0].endDate && selectedDates[0].startDate
+      ? (data.endTime = selectedDates[0].endDate)
+      : null;
+    selectedEventType ? (data.eventType = selectedEventType) : null;
+    profilePicUrl ? (data.attachments[0] = profilePicUrl) : null;
+    address?.addressLine1.trim() !== "" &&
+    address?.city?.trim() !== "" &&
+    address?.coordinates?.length > 0
+      ? (data.address = address)
+      : null;
+
+    console.log(selectedDates);
+    setDraftLoading(true);
+
+    var config = {
+      method: "patch",
+      maxBodyLength: Infinity,
+      url: `https://api.test.festabash.com/v1/event-management/event/${eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: JSON.stringify(data),
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        setDraftLoading(false);
+        toast.success("Event saved to drafts", {
+          position: "bottom-right",
+        });
+
+        router.push("/created-events");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const getGuestsList = async () => {
+    const token = localStorage.getItem("token");
+
+    var data = JSON.stringify({});
+
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/event-management/event-guest?event=${router.query.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: data,
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        setGuests(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const getCoHOstList = async () => {
+    const token = localStorage.getItem("token");
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/event-management/event-cohost?event=${router.query.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        setCoHosts(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const fetchEventTypes = async () => {
+    const token = localStorage.getItem("token");
+
+    var config = {
+      method: "get",
+      maxBodyLength: Infinity,
+      url: "https://api.test.festabash.com/v1/event-management/event-type",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        setEventTypes(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    console.log(selectedEventType);
+  }, [selectedEventType]);
+
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
+  const handlePlaceSelect = (place) => {
+    setSelectedPlace(place);
+  };
+
+  const postLike = async (id) => {
+    const token = localStorage.getItem("token");
+    var data2 = JSON.stringify({
+      entityType: "post",
+      entityId: id,
+    });
+
+    var config = {
+      method: "post",
+      url: "https://api.test.festabash.com/v1/likes",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: data2,
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const onPostChange = async (imageList, addUpdateIndex) => {
+    // data for submit
+    console.log(imageList[0].file);
+    setPostImage(imageList);
+
+    await imageUpload(imageList[0].file, "post");
+  };
+
+  const [photo, setPhoto] = useState("");
+
+  const onPhotoChange = async (imageList, addUpdateIndex) => {
+    console.log(imageList[0].file);
+    setPhoto(imageList);
+
+    await imageUpload(imageList[0].file, "photo");
+  };
+
+  const venueSave = () => {
+    console.log("++++++++++", {
+      ...address,
+      addressLine1: addressLine,
+      city: cityText,
+    });
+    setAddress({ ...address, addressLine1: addressLine, city: cityText });
+    setVenueOpen(false);
   };
 
   return (
@@ -210,29 +727,69 @@ const index = () => {
               placeholder={"Enter the title of your event"}
             />
           </div>
-          <div className="w-full">
-            <div className="text-gray-700 text-base font-medium mb-1">
-              Photo
-            </div>
-            <label
-              for="dropzone-file"
-              className="flex flex-col items-center justify-center w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-200 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-            >
-              <div className="flex flex-col items-center justify-center px-  py-5">
-                <p>+</p>
-                <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold">Click to upload</span>
-                </p>
+          <div className="w-full flex justify-start space-x-2 items-center">
+            <div>
+              <div className="text-gray-700 text-base font-medium mb-1">
+                Photo
               </div>
-              <input
-                id="dropzone-file"
-                type="file"
-                className="hidden"
-                onChange={(e) => {
-                  handleChange(e);
-                }}
-              />
-            </label>
+              <div className="flex">
+                <ImageUploading
+                  value={profilePic}
+                  onChange={onChange}
+                  dataURLKey="data_url"
+                  acceptType={["jpg", "jpeg", "png", "svg"]}
+                >
+                  {({
+                    imageList,
+                    onImageUpload,
+                    onImageRemoveAll,
+                    onImageUpdate,
+                    onImageRemove,
+                    isDragging,
+                    dragProps,
+                  }) => (
+                    // write your building UI
+
+                    <div className="flex space-x-2">
+                      {!profilePic && (
+                        <button
+                          className="w-32 h-32 rounded-xl bg-gray-100 border flex justify-center items-center text-3xl font-black text-gray-600"
+                          onClick={onImageUpload}
+                          {...dragProps}
+                        >
+                          +
+                        </button>
+                      )}
+                      {profileUploading && (
+                        <div>
+                          <Spinner />
+                        </div>
+                      )}
+
+                      {!profileUploading &&
+                        imageList.map((image, index) => (
+                          <div key={index} className="">
+                            <img src={image.data_url} alt="" width="100" />
+                            <div className="flex space-x-3 justify-end pt-1 items-center">
+                              <button onClick={() => onImageUpdate(index)}>
+                                <PencilAltIcon className="w-6 text-gray-500" />
+                              </button>
+                              <button onClick={() => setProfilePic("")}>
+                                <TrashIcon className="w-6 text-red-500" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </ImageUploading>
+              </div>
+            </div>
+            {profilePicUrl && (
+              <div>
+                <img className="w-32" src={profilePicUrl} />
+              </div>
+            )}
           </div>
           <div
             onClick={() => setVenueOpen(true)}
@@ -240,12 +797,55 @@ const index = () => {
           >
             Enter your venue
           </div>
+
+          <div className="my-4">
+            <div className="my-4 text-center font-semibold text-lg">
+              Choose your Event Type
+              <span className="text-red-500 text-base">*</span>
+            </div>
+            <RadioGroup
+              className="grid grid-cols-3 gap-3"
+              value={selectedEventType}
+              onChange={(e) => setSelectedEventType(e)}
+            >
+              {eventTypes?.map((type) => (
+                <RadioGroup.Option
+                  className={({ active, checked }) =>
+                    `${
+                      active
+                        ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                        : ""
+                    }
+                  ${
+                    checked ? "bg-sky-900 bg-opacity-75 text-white" : "bg-white"
+                  }
+                    relative flex flex-col justify-center items-center cursor-pointer rounded-lg p-3 shadow-md focus:outline-none`
+                  }
+                  key={type._id}
+                  value={type._id}
+                >
+                  <Image
+                    src={type.avatar}
+                    width={400}
+                    height={400}
+                    alt={"eventType"}
+                    className="w-full rounded-lg h-24"
+                  />
+                  <div>{type.name}</div>
+                </RadioGroup.Option>
+              ))}
+            </RadioGroup>
+          </div>
+
           <div className="w-full my-3">
             <div className="my-4 text-center font-semibold text-lg">
               More details
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl">
+              <div
+                onClick={() => setDateOpen(true)}
+                className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
+              >
                 <img src={"/images/Calendar.svg"} />
                 <div>Date and Time</div>
               </div>
@@ -321,28 +921,133 @@ const index = () => {
             </div>
           </div>
           {status === 0 ? (
-            <div>No Posts Yet</div>
+            <div className="h-[150vh] overflow-y-scroll">
+              {" "}
+              {posts?.map((post, index) =>
+                post.image ? (
+                  <div
+                    key={index}
+                    className="w-full z-50 bg-gray-200 my-3 p-3 rounded-xl"
+                  >
+                    <img
+                      className="w-full mb-2 rounded-lg"
+                      src={post.image[0]}
+                    />
+                    <div className="w-full flex justify-between items-center">
+                      <div className="flex-1">
+                        <div className="text-lg font-bold mb-2">
+                          {post.title}
+                        </div>
+                        <div>{post.description}</div>
+                      </div>
+                      <div className="flex space-x-3">
+                        <div className="flex items-center space-x-1">
+                          <div>{post.likeCount}</div>
+                          <HeartIcon
+                            onClick={() => postLike(post._id)}
+                            className="w-4 cursor-pointer"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <div>{post.commentCount}</div>
+                          <ChatAltIcon
+                            onClick={() => setChatboxOpen(!chatboxOpen)}
+                            className="w-4 cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      {chatboxOpen ? (
+                        <div className="mt-2">djkhkdjhkd</div>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    key={index}
+                    className="w-full flex justify-between items-center bg-white bg-opacity-20 my-3 p-3 rounded-xl"
+                  >
+                    <div className="flex-1">
+                      <div className="text-lg font-bold mb-2">{post.title}</div>
+                      <div>{post.description}</div>
+                    </div>
+                    <div className="flex space-x-3">
+                      <div className="flex items-center space-x-1">
+                        <div>{post.likeCount}</div>
+                        <HeartIcon className="w-4 cursor-pointer" />
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <div>{post.likeCount}</div>
+                        <ChatAltIcon className="w-4 cursor-pointer" />
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
           ) : status === 1 ? (
-            <div className="mt-3">
-              <label
-                for="dropzone-file"
-                className="flex flex-col items-center justify-center w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-200 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-              >
-                <div className="flex flex-col items-center justify-center px-  py-5">
-                  <p>+</p>
-                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-semibold">Click to upload</span>
-                  </p>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              <div className="flex">
+                <ImageUploading
+                  // multiple
+                  // maxNumber={}
+                  value={photo}
+                  onChange={onPhotoChange}
+                  dataURLKey="data_url"
+                  acceptType={["jpg", "jpeg", "png", "svg"]}
+                >
+                  {({
+                    imageList,
+                    onImageUpload,
+                    onImageRemoveAll,
+                    onImageUpdate,
+                    onImageRemove,
+                    isDragging,
+                    dragProps,
+                  }) => (
+                    // write your building UI
+
+                    <div className="flex space-x-2">
+                      <button
+                        className="w-32 h-32 rounded-xl bg-gray-100 border flex justify-center items-center text-3xl font-black text-gray-600"
+                        onClick={onImageUpload}
+                        {...dragProps}
+                      >
+                        +
+                      </button>
+                      {photoUploading && (
+                        <div>
+                          <Spinner />
+                        </div>
+                      )}
+
+                      {/* {!photoUploading &&
+                        imageList.map((image, index) => (
+                          <div key={index} className="">
+                            <img src={image.data_url} alt="" width="100" />
+                            <div className="flex space-x-3 justify-end pt-1 items-center">
+                              <button onClick={() => onImageUpdate(index)}>
+                                <PencilAltIcon className="w-6 text-gray-500" />
+                              </button>
+                              <button onClick={() => setPostImage("")}>
+                                <TrashIcon className="w-6 text-red-500" />
+                              </button>
+                            </div>
+                          </div>
+                        ))} */}
+                    </div>
+                  )}
+                </ImageUploading>
+              </div>
+              {photos.map((photo, index) => (
+                <div>
+                  <img
+                    className="w-32 h-32 rounded-xl shadow-lg"
+                    src={photo.thumbnailImage}
+                  />
                 </div>
-                <input
-                  id="dropzone-file"
-                  type="file"
-                  className="hidden"
-                  onChange={(e) => {
-                    handleChange(e);
-                  }}
-                />
-              </label>
+              ))}
             </div>
           ) : (
             <div className="p-3 border border-gray-300 mt-4 rounded-xl shadow-xl">
@@ -352,8 +1057,8 @@ const index = () => {
                 </div>
                 <input
                   className="w-full py-2 border rounded-lg px-4 border-gray-400"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  value={postTitle}
+                  onChange={(e) => setPostTitle(e.target.value)}
                   placeholder={"Enter the title of your event"}
                 />
               </div>
@@ -363,42 +1068,110 @@ const index = () => {
                 </div>
                 <textarea
                   className="w-full py-2 border rounded-lg px-4 border-gray-400"
-                  value={description}
+                  value={postDescription}
                   rows={4}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) => setPostDescription(e.target.value)}
                   placeholder={"Enter the title of your event"}
                 />
               </div>
-              <div className="w-full">
-                <div className="text-gray-700 text-base font-medium mb-1">
-                  Photos
-                </div>
-                <label
-                  for="dropzone-file"
-                  className="flex flex-col items-center justify-center w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-200 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+              <div className="flex">
+                <ImageUploading
+                  multiple
+                  // maxNumber={}
+                  value={postImage}
+                  onChange={onPostChange}
+                  dataURLKey="data_url"
+                  acceptType={["jpg", "jpeg", "png", "svg"]}
                 >
-                  <div className="flex flex-col items-center justify-center px-  py-5">
-                    <p>+</p>
-                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="font-semibold">Click to upload</span>
-                    </p>
-                  </div>
-                  <input
-                    id="dropzone-file"
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => {
-                      handleChange(e);
-                    }}
-                  />
-                </label>
+                  {({
+                    imageList,
+                    onImageUpload,
+                    onImageRemoveAll,
+                    onImageUpdate,
+                    onImageRemove,
+                    isDragging,
+                    dragProps,
+                  }) => (
+                    // write your building UI
+
+                    <div className="flex space-x-2">
+                      <button
+                        className="w-32 h-32 rounded-xl bg-gray-100 border flex justify-center items-center text-3xl font-black text-gray-600"
+                        onClick={onImageUpload}
+                        {...dragProps}
+                      >
+                        +
+                      </button>
+                      {uploadLoading && (
+                        <div>
+                          <Spinner />
+                        </div>
+                      )}
+
+                      {!uploadLoading &&
+                        imageList.map((image, index) => (
+                          <div key={index} className="">
+                            <img src={image.data_url} alt="" width="100" />
+                            <div className="flex space-x-3 justify-end pt-1 items-center">
+                              <button onClick={() => onImageUpdate(index)}>
+                                <PencilAltIcon className="w-6 text-gray-500" />
+                              </button>
+                              <button onClick={() => setPostImage("")}>
+                                <TrashIcon className="w-6 text-red-500" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </ImageUploading>
               </div>
-              <button className="w-full px-4 py-2 mt-3 border border-gray-300 rounded-xl shadow hover:bg-teal-100 hover:text-teal-500">
-                Add a post
+              <div>
+                {postError.trim() !== "" && (
+                  <div className=" mt-2 w-full py-2 rounded-lg bg-red-500 text-white shadow flex justify-center items-center">
+                    {postError}
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => createPost()}
+                disabled={uploadLoading || creatingPost}
+                className="w-full disabled:cursor-wait disabled:bg-gray-100 px-4 py-2 mt-3 border border-gray-300 rounded-xl shadow hover:bg-teal-100 hover:text-teal-500"
+              >
+                {creatingPost ? (
+                  <div className="flex w-max mx-auto justify-between items-center space-x-2">
+                    <Spinner />
+                    <div>Add a post</div>
+                  </div>
+                ) : (
+                  "Add a post"
+                )}
               </button>
             </div>
           )}
         </div>
+      </div>
+      <div className="w-full flex justify-end space-x-3">
+        <button
+          onClick={() => draftHandler()}
+          disabled={draftLoading}
+          className="py-2 rounded-lg px-5 disabled:cursor-wait disabled:bg-gray-100 bg-indigo-600 hover:bg-indigo-700 transition duration-200 text-white"
+        >
+          {draftLoading ? (
+            <div className="flex w-max mx-auto justify-between items-center space-x-2">
+              <Spinner />
+              <div>Save as draft</div>
+            </div>
+          ) : (
+            "Save as draft"
+          )}
+        </button>
+        <button
+          onClick={() => publishEvent()}
+          className="py-2 rounded-lg px-5 bg-indigo-600 hover:bg-indigo-700 transition duration-200 text-white"
+        >
+          Publish
+        </button>
       </div>
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -455,6 +1228,222 @@ const index = () => {
           </div>
         </Dialog>
       </Transition>
+      <Transition appear show={venueOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setVenueOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full  items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Location on map
+                  </Dialog.Title>
+                  <div className="mt-2 mb-10">
+                    <MapAutocomplete
+                      city={cityText}
+                      setCity={setCityText}
+                      addressLine={addressLine}
+                      setAddress={setAddress}
+                      setAddressLine={setAddressLine}
+                      address={address}
+                    />
+                  </div>
+
+                  <div className="">
+                    <button
+                      type="button"
+                      className="inline-flex mt-10 justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => venueSave()}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition appear show={subEventsOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setSubEventsOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full h-[80vh] max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Sub Events
+                  </Dialog.Title>
+                  <div className="mt-2 flex-1">
+                    {/* <p className="text-sm text-gray-500">
+                      Show map with longitude {data?.address?.coordinates[0]}{" "}
+                      and latitude {data?.address?.coordinates[1]}
+                    </p> */}
+                    {subevents.length > 0
+                      ? subevents?.map((subevent, index) => (
+                          <div
+                            key={index}
+                            className="mb-3 w-full  flex space-x-2 px-4 py-2 md:items-center rounded-2xl bg-gray-200 shadow-xl"
+                          >
+                            <div className="">
+                              <img
+                                className="h-24 w-24 md:w-auto md:h-40 rounded-lg"
+                                src={subevent?.attachments[0]}
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-semibold md:text-xl mb-2">
+                                {subevent?.name}
+                              </div>
+                              <div className="mb-2">
+                                {subevent?.description}
+                              </div>
+                              <div className="flex justify-start space-x-6">
+                                <div>{subevent.startTime.slice(0, 10)}</div>
+                                <div>
+                                  {" "}
+                                  {data?.startTime?.slice(11, 16)} -{" "}
+                                  {data?.endTime?.slice(11, 16)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      : "There are no sub events created for this event"}
+                    {/* <div className="h-60 w-full bg-green-100 my-2"></div> */}
+                  </div>
+                  <div className="mt-full">
+                    <button
+                      type="button"
+                      className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setSubEventsOpen(false)}
+                    >
+                      Create a new sub event
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition appear show={dateOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setDateOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Set Date for the event
+                  </Dialog.Title>
+                  <div className="mt-2 w-max mx-auto">
+                    <DateRangePicker
+                      ranges={selectedDates}
+                      staticRanges={[]}
+                      inputRanges={[]}
+                      className="my-3"
+                      onChange={(item) => {
+                        console.log(item.selection.startDate.toISOString());
+                        console.log(item.selection.endDate.toISOString());
+                        setSelectedDates([item.selection]);
+                      }}
+                    />
+                  </div>
+
+                  <div className="mt-4 w-full flex justify-end">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setDateOpen(false)}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
       <Transition appear show={guestsOpen} as={Fragment}>
         <Dialog
           as="div"
@@ -501,7 +1490,7 @@ const index = () => {
                       <div>
                         <div>
                           <label
-                            htmlFor="name"
+                            htmlhtmlFor="name"
                             className="block text-sm font-medium text-gray-700"
                           >
                             Name
@@ -520,7 +1509,7 @@ const index = () => {
                         </div>
                         <div>
                           <label
-                            htmlFor="phone"
+                            htmlhtmlFor="phone"
                             className="block text-sm mt-1 font-medium text-gray-700"
                           >
                             Phone
@@ -545,10 +1534,18 @@ const index = () => {
                       )}
                       <button
                         type="button"
-                        className="inline-flex justify-center mt-6 w-full rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        disabled={guestLoading}
+                        className="inline-flex disabled:bg-gray-200 justify-center mt-6 w-full rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                         onClick={() => addGuest()}
                       >
-                        Add
+                        {guestLoading ? (
+                          <div className="flex w-max mx-auto justify-between items-center space-x-2">
+                            <Spinner />
+                            <div>Save</div>
+                          </div>
+                        ) : (
+                          "Save"
+                        )}
                       </button>
                     </div>
                   </div>
@@ -557,7 +1554,10 @@ const index = () => {
                     <div>All Guests</div>
                     {guests &&
                       guests.map((guest, index) => (
-                        <div className="border-b w-full flex justify-between items-center py-2">
+                        <div
+                          key={index}
+                          className="border-b w-full flex justify-between items-center py-2"
+                        >
                           <div className="flex flex-1 items-center space-x-3">
                             <div>
                               <UserCircleIcon className="w-7 text-gray-400" />
@@ -630,7 +1630,7 @@ const index = () => {
                       <div>
                         <div>
                           <label
-                            htmlFor="name"
+                            htmlhtmlFor="name"
                             className="block text-sm font-medium text-gray-700"
                           >
                             Name
@@ -649,7 +1649,7 @@ const index = () => {
                         </div>
                         <div>
                           <label
-                            htmlFor="phone"
+                            htmlhtmlFor="phone"
                             className="block text-sm mt-1 font-medium text-gray-700"
                           >
                             Phone
@@ -674,10 +1674,18 @@ const index = () => {
                       )}
                       <button
                         type="button"
-                        className="inline-flex justify-center mt-6 w-full rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        disabled={hostLoading}
+                        className="inline-flex disabled:bg-gray-200 justify-center mt-6 w-full rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                         onClick={() => addCoHost()}
                       >
-                        Add
+                        {hostLoading ? (
+                          <div className="flex w-max mx-auto justify-between items-center space-x-2">
+                            <Spinner />
+                            <div>Save</div>
+                          </div>
+                        ) : (
+                          "Save"
+                        )}
                       </button>
                     </div>
                   </div>

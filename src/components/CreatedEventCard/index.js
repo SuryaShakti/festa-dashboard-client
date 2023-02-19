@@ -7,7 +7,9 @@ const createdEventCard = ({ item, section, removeDraft }) => {
   return (
     <div
       className="cursor-pointer"
-      onClick={() => router.push(`/${section}/${item._id}`)}
+      onClick={() =>
+        item.status === 1 && router.push(`/create-event?eventId=${item._id}`)
+      }
     >
       {" "}
       <div
@@ -27,10 +29,18 @@ const createdEventCard = ({ item, section, removeDraft }) => {
                   Draft
                 </div>
                 <button
-                  // onClick={() => removeDraft(item._id)}
+                  onClick={() => removeDraft(item._id)}
                   className="px-4 py-px text-sm rounded-lg cursor-pointer hover:bg-white hover:text-gray-700 border border-white text-white"
                 >
                   Remove
+                </button>
+                <button
+                  onClick={() =>
+                    router.push(`/create-event?eventId=${item._id}`)
+                  }
+                  className="px-4 py-px text-sm rounded-lg cursor-pointer hover:bg-white hover:text-gray-700 border border-white text-white"
+                >
+                  View details
                 </button>
               </div>
             )}
