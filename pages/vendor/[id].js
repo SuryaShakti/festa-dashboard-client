@@ -66,7 +66,7 @@ const Vendor = () => {
                 <div className="text-gray-700 text-xl font-semibold">
                   {vendor.brand}
                 </div>
-                <div className="text-gray-500">Locality and region</div>
+                <div className="text-gray-500">Locality and regionx</div>
                 <div className="text-gray-500">{vendor.description}</div>
               </div>
             </div>
