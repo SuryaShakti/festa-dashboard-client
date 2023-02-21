@@ -183,7 +183,9 @@ export default function DefaultLayout({ children }) {
         {/* Static sidebar for desktop */}
         <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="flex-1 flex flex-col min-h-0 bg-gray-900">
+          <div className="relative flex-1 flex flex-col min-h-0 bg-gray-900">
+           
+
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
               <div className="flex-shrink-0 flex p-4">
                 <a href="#" className="flex-shrink-0 w-full group block">

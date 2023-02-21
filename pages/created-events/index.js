@@ -86,11 +86,14 @@ const createdEvents = () => {
   };
 
   return (
-    <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
-      <div className="bg-white py-5 border-b border-gray-200">
+    <div className="flex relative bg-[#0D0821] rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
+      <div className="fixed top-0 left-0 w-60 h-60 rounded-full bg-orange-500 blur-3xl opacity-20" />
+      <div className="fixed bottom-20 right-0 w-60 h-60 rounded-full bg-orange-500 blur-3xl opacity-20" />
+      <div className="fixed top-1/3 left-1/2 w-60 h-60 rounded-full bg-blue-500 blur-3xl opacity-20" />
+      <div className=" py-5 border-b border-gray-200">
         <div className="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
           <div className="ml-4 mt-2">
-            <h3 className="text-2xl leading-6 font-medium text-gray-900">
+            <h3 className="text-2xl leading-6 font-medium text-white">
               Created Events
             </h3>
           </div>
@@ -105,7 +108,7 @@ const createdEvents = () => {
           </div>
         </div>
       </div>
-      <div>
+      <div className="z-20">
         <CardsContainer
           data={data}
           section="created-events"

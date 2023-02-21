@@ -19,6 +19,8 @@ import ImageUploading from "react-images-uploading";
 import Spinner from "../../src/components/Spinner";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import BudgetDialog from "../../src/components/BudgetDialog";
+import SubEventDialog from "../../src/components/SubEventsDialog";
 
 const index = () => {
   const router = useRouter();
@@ -201,7 +203,9 @@ const index = () => {
         console.log(response.data);
         console.log(response.data.attachments[0]);
         setTitle(response.data.name ? response.data.name : "");
-        setDescription(response.data.description ? response.data.description : "");
+        setDescription(
+          response.data.description ? response.data.description : ""
+        );
         setSelectedEventType(response.data.eventType);
         setSelectedDates([
           {
@@ -682,6 +686,49 @@ const index = () => {
     setVenueOpen(false);
   };
 
+  const [budget, setBudget] = useState("");
+
+  const renderDayContents = (day) => {
+    return (
+      <div>
+        <div>{day.getDate()}</div>
+        <div>
+          <input
+            type="time"
+            value={selectedDates[0].startDate.toLocaleTimeString()}
+            onChange={(e) => {
+              const date = new Date(day);
+              const [hours, minutes] = e.target.value.split(":");
+              date.setHours(hours, minutes);
+              setSelectedDates([
+                {
+                  ...selectedDates[0],
+                  startDate: date,
+                },
+              ]);
+            }}
+          />
+          <span> - </span>
+          <input
+            type="time"
+            value={selectedDates[0].endDate.toLocaleTimeString()}
+            onChange={(e) => {
+              const date = new Date(day);
+              const [hours, minutes] = e.target.value.split(":");
+              date.setHours(hours, minutes);
+              setSelectedDates([
+                {
+                  ...selectedDates[0],
+                  endDate: date,
+                },
+              ]);
+            }}
+          />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
       <div className="bg-white py-5 border-b border-gray-200">
@@ -1021,21 +1068,6 @@ const index = () => {
                           <Spinner />
                         </div>
                       )}
-
-                      {/* {!photoUploading &&
-                        imageList.map((image, index) => (
-                          <div key={index} className="">
-                            <img src={image.data_url} alt="" width="100" />
-                            <div className="flex space-x-3 justify-end pt-1 items-center">
-                              <button onClick={() => onImageUpdate(index)}>
-                                <PencilAltIcon className="w-6 text-gray-500" />
-                              </button>
-                              <button onClick={() => setPostImage("")}>
-                                <TrashIcon className="w-6 text-red-500" />
-                              </button>
-                            </div>
-                          </div>
-                        ))} */}
                     </div>
                   )}
                 </ImageUploading>
@@ -1228,6 +1260,14 @@ const index = () => {
           </div>
         </Dialog>
       </Transition>
+      {budgetOpen && (
+        <BudgetDialog
+          budgetOpen={budgetOpen}
+          setBudgetOpen={setBudgetOpen}
+          subevents={subevents}
+          eventId={router?.query?.eventId}
+        />
+      )}
       <Transition appear show={venueOpen} as={Fragment}>
         <Dialog
           as="div"
@@ -1290,95 +1330,12 @@ const index = () => {
           </div>
         </Dialog>
       </Transition>
-      <Transition appear show={subEventsOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-10"
-          onClose={() => setSubEventsOpen(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full h-[80vh] max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
-                  >
-                    Sub Events
-                  </Dialog.Title>
-                  <div className="mt-2 flex-1">
-                    {/* <p className="text-sm text-gray-500">
-                      Show map with longitude {data?.address?.coordinates[0]}{" "}
-                      and latitude {data?.address?.coordinates[1]}
-                    </p> */}
-                    {subevents.length > 0
-                      ? subevents?.map((subevent, index) => (
-                          <div
-                            key={index}
-                            className="mb-3 w-full  flex space-x-2 px-4 py-2 md:items-center rounded-2xl bg-gray-200 shadow-xl"
-                          >
-                            <div className="">
-                              <img
-                                className="h-24 w-24 md:w-auto md:h-40 rounded-lg"
-                                src={subevent?.attachments[0]}
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold md:text-xl mb-2">
-                                {subevent?.name}
-                              </div>
-                              <div className="mb-2">
-                                {subevent?.description}
-                              </div>
-                              <div className="flex justify-start space-x-6">
-                                <div>{subevent.startTime.slice(0, 10)}</div>
-                                <div>
-                                  {" "}
-                                  {data?.startTime?.slice(11, 16)} -{" "}
-                                  {data?.endTime?.slice(11, 16)}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      : "There are no sub events created for this event"}
-                    {/* <div className="h-60 w-full bg-green-100 my-2"></div> */}
-                  </div>
-                  <div className="mt-full">
-                    <button
-                      type="button"
-                      className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={() => setSubEventsOpen(false)}
-                    >
-                      Create a new sub event
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
+      <SubEventDialog
+        subEventsOpen={subEventsOpen}
+        setSubEventsOpen={setSubEventsOpen}
+        subevents={subevents}
+        data={data}
+      />
       <Transition appear show={dateOpen} as={Fragment}>
         <Dialog
           as="div"
@@ -1426,6 +1383,7 @@ const index = () => {
                         console.log(item.selection.endDate.toISOString());
                         setSelectedDates([item.selection]);
                       }}
+                      minDate={new Date()}
                     />
                   </div>
 
