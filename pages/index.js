@@ -3,6 +3,9 @@ import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import OtpInput from "../src/components/OtpInput";
 
 const Home = () => {
   const [status, setStatus] = useState(0);
@@ -12,6 +15,7 @@ const Home = () => {
   const [username, setUsername] = useState("");
   const [otp, setOtp] = useState("");
   const [operation, setOperation] = useState("");
+  const [error, setError] = useState({ field: "", message: "" });
 
   const googleLoginHandler = () => {};
   const fbLoginHandler = () => {};
@@ -47,7 +51,8 @@ const Home = () => {
         // return response.data;
       })
       .catch(function (error) {
-        console.log(error);
+        console.log(error.response.data.message);
+        setError({ field: "phone", message: error.response.data.message });
       });
   };
 
@@ -102,6 +107,7 @@ const Home = () => {
               console.log(response.data);
               localStorage.setItem("token", response.data.accessToken);
               localStorage.setItem("user", response.data.user);
+              setError({ field: "", message: "" });
               router.push("/created-events");
             })
             .catch(function (error) {
@@ -110,6 +116,7 @@ const Home = () => {
         } else {
           localStorage.setItem("token", response.data.accessToken);
           localStorage.setItem("user", JSON.stringify(response.data.user));
+          setError({ field: "", message: "" });
           router.push("/created-events");
           return;
         }
@@ -119,30 +126,45 @@ const Home = () => {
       });
   };
 
+  function phoneChange(event) {
+    const inputPhoneNumber = event.target.value;
+
+    // Only allow digits, spaces, and dashes
+    const regex = /^[\d\s\-]{0,10}$/;
+
+    // Check if the input matches the regex
+    if (regex.test(inputPhoneNumber) && inputPhoneNumber.length <= 10) {
+      setPhone(inputPhoneNumber);
+    }
+  }
+
   return (
     <div className="w-screen bg-gray-900">
       <div className="z-50 text-white max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex min-h-screen justify-center rounded-xl items-center overflow-hidden">
-        <div className="w-full md:h-4/5 border rounded-xl grid grid-cols-1 lg:grid-cols-2">
+        <div className="w-full md:h-4/5 pb-3 border rounded-xl grid grid-cols-1 lg:grid-cols-2">
           <div className="hidden md:flex flex-col justify-center items-center border border-r-gray-600 border-t-0 border-b-0 border-l-0">
             <div className="p-3 mt-2 bg-white flex justify-center items-center rounded-2xl bg-opacity-10">
               <img className="w-4/5" src={"/images/Login.svg"} />
             </div>
             <div className="my-2 text-2xl w-3/5 text-center font-bold">
-              Create, Manage and Invite Events
-            </div>
-            <div className="my-2 text- w-4/5 text-center">
-              Lorem ipsum dolor sit amet consectetur. Convallis sit semper
-              pharetra luctus et donec arcu. Nibh sed venenatis Nibh sed
-              venenatis ac tristique eleifend fames id. Curabitur vulputate
-              lacus viverra rutrum iaculis maecenas elementum sit lacus.
+              Create, Invite and Manage Events
             </div>
           </div>
           <div className=" relative flex flex-col justify-center items-center">
-            <div className="md:absolute top-6 w-10/12 rounded-xl bg-white shadow grid grid-cols-2 h-12">
+            <div className="w-full flex justify-center items-center">
+              <img src={"/images/logofinal.png"} className="w-32 my-3" />
+            </div>
+
+            <div className="mt-3 w-10/12 rounded-xl bg-white shadow grid grid-cols-2 h-12">
               <div
-                onClick={() => setStatus(0)}
+                onClick={() => {
+                  setStatus(0);
+                  setOperation("");
+                }}
                 className={
                   status === 0
+                    ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
+                    : operation === "login"
                     ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
                     : "bg-white rounded-xl w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium text-lg"
                 }
@@ -150,9 +172,14 @@ const Home = () => {
                 Sign In
               </div>
               <div
-                onClick={() => setStatus(1)}
+                onClick={() => {
+                  setStatus(1);
+                  setOperation("");
+                }}
                 className={
-                  status === 1 || status === 2
+                  status === 1
+                    ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
+                    : operation === "signup"
                     ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
                     : "bg-white rounded-xl w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium text-lg"
                 }
@@ -162,15 +189,17 @@ const Home = () => {
             </div>
             {status === 0 ? (
               <div className="w-10/12">
-                <div className="my-6 w-full">
+                <div className="mb-6 mt-7 w-full">
                   <label className="block mb-2 text-sm">Phone Number</label>
                   <input
-                    type="number"
                     value={phone}
                     placeholder="1234567890"
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={phoneChange}
                     className="bg-transparent border border-gray-300 text-gray-200 text-sm rounded-lg  block w-full p-2.5  dark:placeholder-gray-400"
                   />
+                  {error.field === "phone" && (
+                    <p class="mt-px text-xs text-white">{error.message}</p>
+                  )}
                 </div>
                 <button
                   onClick={() => {
@@ -201,14 +230,14 @@ const Home = () => {
                   </div>
                 </div>
                 <div className="w-full text-xs text-gray-400 justify-center mt-2 flex space-x-1">
-                  <div>Already have an account ?</div>
+                  <div>Don't have an account ?</div>
                   <div
                     onClick={() => {
                       setStatus(1);
                       setUsername("");
                       setPhone("");
                     }}
-                    className="cursor-pointer text-purple-600"
+                    className="cursor-pointer text-indigo-400"
                   >
                     Register
                   </div>
@@ -231,11 +260,10 @@ const Home = () => {
                   <div>
                     <label className="block mb-2 text-sm">Phone Number</label>
                     <input
-                      type="number"
                       value={phone}
                       required={true}
                       placeholder="Enter your phone"
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={phoneChange}
                       className="bg-transparent border border-gray-300 text-gray-200 text-sm rounded-lg  block w-full p-2.5  dark:placeholder-gray-400"
                     />
                   </div>
@@ -257,7 +285,7 @@ const Home = () => {
                       setUsername("");
                       setPhone("");
                     }}
-                    className="cursor-pointer text-purple-600"
+                    className="cursor-pointer text-indigo-400"
                   >
                     Login
                   </div>
@@ -267,13 +295,7 @@ const Home = () => {
               <div className="w-10/12">
                 <div className="my-6 w-full">
                   <label className="block mb-2 text-sm">Enter OTP</label>
-                  <input
-                    type="number"
-                    value={otp}
-                    placeholder="123456"
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="bg-transparent border border-gray-300 text-gray-200 text-sm rounded-lg  block w-full p-2.5  dark:placeholder-gray-400"
-                  />
+                  <OtpInput otp={otp} setOtp={setOtp} />
                 </div>
                 <button
                   onClick={() => verifyOtp(operation)}

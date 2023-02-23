@@ -65,14 +65,11 @@ export default function DefaultLayout({ children }) {
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-        ```
-        <html class="h-full bg-gray-100">
-        <body class="h-full">
-        ```
-      */}
-      <div className="bg-gray-900">
+      <div className="fixed z-10 top-0 left-60 w-60 h-60 rounded-full blur-3xl bg-opacity-40 bg-orange-500" />
+      <div className="fixed z-10 bottom-20 right-0 w-60 h-60 rounded-full blur-3xl bg-opacity-40 bg-orange-500 " />
+      <div className="fixed z-10 top-1/3 left-1/2 w-60 h-60 rounded-full blur-3xl bg-opacity-40 bg-blue-500 " />
+      <div className="fixed z-10 top-2/3 left-60 w-60 h-60 rounded-full blur-3xl bg-opacity-40 bg-blue-500 " />
+      <div className="z-50 bg-gray-900">
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
             as="div"
@@ -99,7 +96,7 @@ export default function DefaultLayout({ children }) {
               leaveFrom="translate-x-0"
               leaveTo="-translate-x-full"
             >
-              <div className="relative flex-1 flex flex-col max-w-xs w-full bg-gray-900">
+              <div className="relative flex-1 flex flex-col max-w-xs w-full z-50 bg-gray-900">
                 <Transition.Child
                   as={Fragment}
                   enter="ease-in-out duration-300"
@@ -160,7 +157,7 @@ export default function DefaultLayout({ children }) {
                           item.current
                             ? "bg-indigo-800 text-white"
                             : "text-white hover:bg-indigo-600 hover:bg-opacity-75",
-                          "group flex items-center px-2 py-2 text-base font-medium rounded-md"
+                          "group z-50 flex items-center px-2 py-2 text-base font-medium rounded-md"
                         )}
                       >
                         <item.icon
@@ -183,38 +180,42 @@ export default function DefaultLayout({ children }) {
         {/* Static sidebar for desktop */}
         <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="relative flex-1 flex flex-col min-h-0 bg-gray-900">
-           
-
+          <div className="relative z-50 flex-1 flex flex-col min-h-0 bg-gray-900">
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-              <div className="flex-shrink-0 flex p-4">
+              <div className="w-full mt-5" >
+                <img
+                  src={"/images/logofinal.png"}
+                  className="w-7/12 mx-auto"
+                />
+              </div>
+              <div className="flex-shrink-0 flex p-4 mt-8">
                 <a href="#" className="flex-shrink-0 w-full group block">
                   <div className="flex items-center">
                     <div>
                       {user.avatar ? (
                         <img
-                          className="inline-block h-9 w-9 rounded-full"
+                          className="inline-block h-16 w-16 rounded-full"
                           src={user.avatar ? user.avatar : "s"}
                           alt=""
                         />
                       ) : (
-                        <div className="h-9 w-9 rounded-full bg-teal-300 flex justify-center items-center text-white shadow-lg text-xl font-bold">
+                        <div className="h-16 w-16 rounded-full bg-teal-300 flex justify-center items-center text-white shadow-lg text-xl font-bold">
                           {user?.name ? user.name[0] : ""}
                         </div>
                       )}
                     </div>
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-white">
+                      <p className="text-lg font-medium text-white">
                         {user?.name ? user.name : ""}
                       </p>
-                      <p className="text-xs font-medium text-white group-hover:text-white">
+                      <p className="text-sm font-medium text-white group-hover:text-white">
                         {user.phone ? user.phone : ""}
                       </p>
                     </div>
                   </div>
                 </a>
               </div>
-              <nav className="mt-5 flex-1 pl-2 space-y-1">
+              <nav className=" mt-5 flex-1 pl-2 space-y-1">
                 {navigation.map((item) => (
                   <a
                     key={item.name}
@@ -223,7 +224,7 @@ export default function DefaultLayout({ children }) {
                       router.pathname === item.href
                         ? "bg-white text-teal-500"
                         : "text-white hover:bg-white hover:text-gray-900 hover:bg-opacity-75",
-                      "group flex items-center px-2 py-2 text-sm font-medium rounded-l-full"
+                      "group z-50 flex items-center px-2 py-2 text-base font-medium rounded-l-full"
                     )}
                   >
                     <item.icon
@@ -232,7 +233,7 @@ export default function DefaultLayout({ children }) {
                         router.pathname === item.href
                           ? "text-teal-500"
                           : "text-white  hover:bg-opacity-75",
-                        "mr-3 flex-shrink-0 h-6 w-6 text-white"
+                        "mr-3 z-50 flex-shrink-0 h-6 w-6 text-white"
                       )}
                       aria-hidden="true"
                     />
@@ -273,7 +274,8 @@ export default function DefaultLayout({ children }) {
               <MenuIcon className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
-          <main className="flex-1 py-5 box-border	  ">{children}</main>
+
+          <main className="flex-1 py-5 box-border	 ">{children}</main>
         </div>
       </div>
     </>

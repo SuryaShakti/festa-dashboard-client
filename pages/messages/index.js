@@ -40,10 +40,10 @@ const messages = () => {
   }, []);
 
     return (
-      <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
-        <div className="w-full">
-          <div className="md:max-w-3xl">
-            <div className="w-full rounded-xl bg-white shadow grid grid-cols-2 h-10">
+      <div className="flex z-50 bg-[#0D0821] rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
+        <div className="w-full z-50">
+          <div className="md:max-w-3xl z-50">
+            <div className="w-full z-50 rounded-xl bg-white shadow grid grid-cols-2 h-10">
               <div
                 onClick={() => setStatus(0)}
                 className={
@@ -70,7 +70,7 @@ const messages = () => {
                   <div
                     key={index}
                     onClick={() => router.push(`messages/${chat._id}`)}
-                    className="w-full flex my-3 items-center bg-gray-200 shadow-xl cursor-pointer rounded-xl p-2 "
+                    className="w-full flex my-3 items-center bg-gray-100 bg-opacity-20 shadow-xl cursor-pointer rounded-xl p-2 "
                   >
                     <div className="flex items-center flex-1">
                       <img
@@ -78,15 +78,15 @@ const messages = () => {
                         className="w-14 h-14 rounded-full"
                       />
                       <div className="ml-3 space-y-1">
-                        <div className="text-lg font-bold">{chat.name}</div>
-                        <div className="text-xs">
+                        <div className="text-lg text-white font-bold">{chat.name}</div>
+                        <div className="text-xs text-gray-100">
                           {chat?.lastMessage?.createdBy?.name
                             ? chat?.lastMessage?.createdBy?.name
                             : "No messages yet"}
                         </div>
                       </div>
                     </div>
-                    <div>
+                    <div className="text-white">
                       {chat.lastMessage?.createdBy?.createdAt
                         ? chat.lastMessage?.createdBy?.createdAt.slice(11, 16)
                         : ""}

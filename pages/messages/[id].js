@@ -66,10 +66,10 @@ const ChatBox = () => {
     }
   }, [router.query.id]);
   return (
-    <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
+    <div className="flex z-50 bg-[#0D0821]  rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
       <div className="min-h-[95vh] flex flex-col py-4">
-        <div className="flex-1 flex justify-end flex-col bg-gray-200 rounded-2xl p-2 sm:p-3 md:p-5">
-          <div className=" flex flex-col">
+        <div className="flex-1 z-50 flex justify-end flex-col rounded-2xl p-2 sm:p-3 md:p-5">
+          <div className="z-50 flex flex-col">
             {messages?.map((message, index) => (
               <div
                 key={message._id}

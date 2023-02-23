@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BudgetDialog from "../../src/components/BudgetDialog";
 import SubEventDialog from "../../src/components/SubEventsDialog";
+import VendorDialog from "../../src/components/VendorDialog";
 
 const index = () => {
   const router = useRouter();
@@ -1260,6 +1261,13 @@ const index = () => {
           </div>
         </Dialog>
       </Transition>
+      {vendorsOpen && (
+        <VendorDialog
+          vendorsOpen={vendorsOpen}
+          setVendorsOpen={setVendorsOpen}
+          eventId={router?.query?.eventId}
+        />
+      )}
       {budgetOpen && (
         <BudgetDialog
           budgetOpen={budgetOpen}
