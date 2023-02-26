@@ -157,7 +157,7 @@ const SubEventDialog = ({
       <Transition appear show={subEventsOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           onClose={() => setSubEventsOpen(false)}
         >
           <Transition.Child
@@ -244,7 +244,7 @@ const SubEventDialog = ({
       <Transition appear show={createSubEventOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           onClose={() => setCreateSubEventOpen(false)}
         >
           <Transition.Child
@@ -438,7 +438,7 @@ const SubEventDialog = ({
       <Transition appear show={venueOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           onClose={() => setVenueOpen(false)}
         >
           <Transition.Child

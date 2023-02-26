@@ -329,21 +329,21 @@ const createdEventDetails = () => {
   };
 
   return (
-    <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
-      <div className="">
-        <div className="bg-white py-5 border-b border-gray-200">
-          <div className="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-            <div className="ml-4 mt-2">
+    <div className="flex z-50 bg-[#0D0821] rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
+      <div className="z-50">
+        <div className="z-50 py-5 border-b border-gray-200">
+          <div className="z-50-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
+            <div className="z-50 ml-4 mt-2">
               <h3 className="text-2xl leading-6 font-medium text-gray-900">
                 Event Details
               </h3>
             </div>
           </div>
         </div>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2">
+        <div className=" z-50 mt-6 grid grid-cols-1 md:grid-cols-2">
           <div className="flex flex-col items-center md:items-start">
             <div className="w-full md:w-10/12 shadow-xl rounded-2xl">
-              <div className="h-12 rounded-t-2xl bg-teal-500 px-5 flex justify-between items-center text-xs md:text-lg text-white font-semibold">
+              <div className="z-50 first-letter:h-12 rounded-t-2xl bg-teal-500 px-5 flex justify-between items-center text-xs md:text-lg text-white font-semibold">
                 <div>{data?.startTime.slice(0, 10)}</div>
                 <div>
                   Time : {data?.startTime.slice(11, 16)} -{" "}

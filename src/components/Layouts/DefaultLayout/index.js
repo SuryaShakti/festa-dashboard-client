@@ -47,6 +47,7 @@ const navigation = [
   //   current: false,
   // },
   { name: "Feedback", href: "/feedback", icon: ChartBarIcon, current: false },
+  { name: "Support", href: "/support", icon: ChartBarIcon, current: false },
 ];
 
 function classNames(...classes) {
@@ -58,10 +59,47 @@ export default function DefaultLayout({ children }) {
   const [user, setUser] = useState({});
   const router = useRouter();
 
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+  const [placeName, setPlaceName] = useState(null);
+
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+        },
+        (error) => {
+          console.error(error);
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     setUser(user);
+    getLocation();
   }, []);
+
+  useEffect(() => {
+    if (latitude && longitude) {
+      fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          setPlaceName(data.name);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [latitude, longitude]);
 
   return (
     <>
@@ -73,7 +111,7 @@ export default function DefaultLayout({ children }) {
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
             as="div"
-            className="fixed inset-0 flex z-40 md:hidden"
+            className="fixed inset-0 flex z-50 md:hidden"
             onClose={setSidebarOpen}
           >
             <Transition.Child
@@ -144,6 +182,9 @@ export default function DefaultLayout({ children }) {
                           <p className="text-sm font-medium text-indigo-200 group-hover:text-white">
                             {user.phone}
                           </p>
+                          <p className="text-sm font-medium text-indigo-200 group-hover:text-white">
+                            {placeName}
+                          </p>
                         </div>
                       </div>
                     </a>
@@ -182,11 +223,8 @@ export default function DefaultLayout({ children }) {
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="relative z-50 flex-1 flex flex-col min-h-0 bg-gray-900">
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-              <div className="w-full mt-5" >
-                <img
-                  src={"/images/logofinal.png"}
-                  className="w-7/12 mx-auto"
-                />
+              <div className="w-full mt-5">
+                <img src={"/images/logofinal.png"} className="w-7/12 mx-auto" />
               </div>
               <div className="flex-shrink-0 flex p-4 mt-8">
                 <a href="#" className="flex-shrink-0 w-full group block">
@@ -210,6 +248,9 @@ export default function DefaultLayout({ children }) {
                       </p>
                       <p className="text-sm font-medium text-white group-hover:text-white">
                         {user.phone ? user.phone : ""}
+                      </p>
+                      <p className="text-sm font-medium text-white group-hover:text-white">
+                        {placeName ? placeName : ""}
                       </p>
                     </div>
                   </div>
@@ -264,10 +305,10 @@ export default function DefaultLayout({ children }) {
           </div>
         </div>
         <div className="md:pl-64 flex flex-col flex-1">
-          <div className="sticky top-0 z-10 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-100">
+          <div className="sticky top-0 z-50 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-100 bg-opacity-20">
             <button
               type="button"
-              className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               onClick={() => setSidebarOpen(true)}
             >
               <span className="sr-only">Open sidebar</span>

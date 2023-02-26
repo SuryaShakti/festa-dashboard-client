@@ -270,7 +270,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
       <Transition appear show={budgetOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           onClose={() => setBudgetOpen(false)}
         >
           <Transition.Child
@@ -404,7 +404,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
       <Transition appear show={open} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           ref={innerDialogInputRef}
           onClose={() => setOpen(false)}
         >

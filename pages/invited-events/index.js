@@ -33,11 +33,11 @@ const invitedEvents = () => {
   };
 
   return (
-    <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
-      <div className="bg-white py-5 border-b border-gray-200">
-        <div className="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-          <div className="ml-4 mt-2">
-            <h3 className="text-2xl leading-6 font-medium text-gray-900">
+    <div className="flex bg-[#0D0821] z-50 rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
+      <div className="z-50 py-5 border-b border-gray-200">
+        <div className="z-50 -ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
+          <div className="z-50 ml-4 mt-2">
+            <h3 className="z-50 text-2xl leading-6 font-medium text-white">
               Invited Events
             </h3>
           </div>

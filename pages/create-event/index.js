@@ -730,12 +730,14 @@ const index = () => {
     );
   };
 
+  const [toggle, setToggle] = useState(0);
+
   return (
-    <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
-      <div className="bg-white py-5 border-b border-gray-200">
-        <div className="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-          <div className="ml-4 mt-2">
-            <h3 className="text-2xl leading-6 font-medium text-gray-900">
+    <div className="flex bg-[#0D0821] z-30 rounded-3xl min-h-[95vh] flex-col px-3 md:px-10 py-4 md:mr-6">
+      <div className="z-30 py-5 border-b border-gray-200">
+        <div className="z-30 -ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
+          <div className="z-30 ml-4 mt-2">
+            <h3 className="text-2xl leading-6 font-medium text-white  ">
               Create a new event
             </h3>
           </div>
@@ -748,240 +750,305 @@ const index = () => {
               Your Created Events
             </button>
           </div>
+          <div className=" mt-3 rounded-xl bg-white shadow grid grid-cols-2 h-9">
+            <div
+              onClick={() => {
+                setToggle(0);
+              }}
+              className={
+                toggle === 0
+                  ? "bg-indigo-700 rounded-md px-10 w-full cursor-pointer text-white flex justify-center items-center font-medium "
+                  : "bg-white rounded-md px-10 w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium "
+              }
+            >
+              Event Details
+            </div>
+            <div
+              onClick={() => {
+                setToggle(1);
+              }}
+              className={
+                toggle === 1
+                  ? "bg-indigo-700 rounded-md px-10 w-full cursor-pointer text-white flex justify-center items-center font-medium "
+                  : "bg-white rounded-md px-10 w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium "
+              }
+            >
+              Feeds
+            </div>
+          </div>
         </div>
       </div>
-      <div className="mt-5 w-full grid grid-cols-1 lg:grid-cols-2 lg:gap-8">
-        <div className="space-y-3">
-          <div>
-            <div className="text-gray-700 text-base font-medium mb-1">
-              Title <span className="text-red-500 text-base">*</span>
-            </div>
-            <input
-              className="w-full py-2 border rounded-lg px-4 border-gray-400"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={"Enter the title of your event"}
-            />
-          </div>
-          <div>
-            <div className="text-gray-700 text-base font-medium mb-1">
-              Description
-            </div>
-            <textarea
-              className="w-full py-2 border rounded-lg px-4 border-gray-400"
-              value={description}
-              rows={4}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={"Enter the title of your event"}
-            />
-          </div>
-          <div className="w-full flex justify-start space-x-2 items-center">
+      <div className="z-30 mt-5 w-full grid grid-cols-1 md:grid-cols-2 md:gap-8">
+        <div className="col-span-2"> </div>
+        {toggle === 0 ? (
+          <div className="z-30 space-y-3">
             <div>
-              <div className="text-gray-700 text-base font-medium mb-1">
-                Photo
+              <div className="text-white text-base font-medium mb-1">
+                Title <span className="text-red-500 text-base">*</span>
               </div>
-              <div className="flex">
-                <ImageUploading
-                  value={profilePic}
-                  onChange={onChange}
-                  dataURLKey="data_url"
-                  acceptType={["jpg", "jpeg", "png", "svg"]}
-                >
-                  {({
-                    imageList,
-                    onImageUpload,
-                    onImageRemoveAll,
-                    onImageUpdate,
-                    onImageRemove,
-                    isDragging,
-                    dragProps,
-                  }) => (
-                    // write your building UI
-
-                    <div className="flex space-x-2">
-                      {!profilePic && (
-                        <button
-                          className="w-32 h-32 rounded-xl bg-gray-100 border flex justify-center items-center text-3xl font-black text-gray-600"
-                          onClick={onImageUpload}
-                          {...dragProps}
-                        >
-                          +
-                        </button>
-                      )}
-                      {profileUploading && (
-                        <div>
-                          <Spinner />
-                        </div>
-                      )}
-
-                      {!profileUploading &&
-                        imageList.map((image, index) => (
-                          <div key={index} className="">
-                            <img src={image.data_url} alt="" width="100" />
-                            <div className="flex space-x-3 justify-end pt-1 items-center">
-                              <button onClick={() => onImageUpdate(index)}>
-                                <PencilAltIcon className="w-6 text-gray-500" />
-                              </button>
-                              <button onClick={() => setProfilePic("")}>
-                                <TrashIcon className="w-6 text-red-500" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </ImageUploading>
-              </div>
+              <input
+                className="w-full text-white bg-opacity-20 bg-gray-100  py-2 border rounded-lg px-4 border-gray-400"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={"Enter the title of your event"}
+              />
             </div>
-            {profilePicUrl && (
+            <div>
+              <div className="text-white text-base font-medium mb-1">
+                Description
+              </div>
+              <textarea
+                className="w-full py-2 text-white bg-opacity-20 bg-gray-100 border rounded-lg px-4 border-gray-400"
+                value={description}
+                rows={4}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={"Enter the description of your event"}
+              />
+            </div>
+            <div className="w-full flex justify-start space-x-2 items-center">
               <div>
-                <img className="w-32" src={profilePicUrl} />
-              </div>
-            )}
-          </div>
-          <div
-            onClick={() => setVenueOpen(true)}
-            className="mt-3 w-dull py-2 border border-gray-400 flex justify-center items-center hover:bg-teal-50 transition duration-200 hover:text-teal-500 rounded-xl cursor-pointer"
-          >
-            Enter your venue
-          </div>
-
-          <div className="my-4">
-            <div className="my-4 text-center font-semibold text-lg">
-              Choose your Event Type
-              <span className="text-red-500 text-base">*</span>
-            </div>
-            <RadioGroup
-              className="grid grid-cols-3 gap-3"
-              value={selectedEventType}
-              onChange={(e) => setSelectedEventType(e)}
-            >
-              {eventTypes?.map((type) => (
-                <RadioGroup.Option
-                  className={({ active, checked }) =>
-                    `${
-                      active
-                        ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
-                        : ""
-                    }
-                  ${
-                    checked ? "bg-sky-900 bg-opacity-75 text-white" : "bg-white"
-                  }
-                    relative flex flex-col justify-center items-center cursor-pointer rounded-lg p-3 shadow-md focus:outline-none`
-                  }
-                  key={type._id}
-                  value={type._id}
-                >
-                  <Image
-                    src={type.avatar}
-                    width={400}
-                    height={400}
-                    alt={"eventType"}
-                    className="w-full rounded-lg h-24"
-                  />
-                  <div>{type.name}</div>
-                </RadioGroup.Option>
-              ))}
-            </RadioGroup>
-          </div>
-
-          <div className="w-full my-3">
-            <div className="my-4 text-center font-semibold text-lg">
-              More details
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div
-                onClick={() => setDateOpen(true)}
-                className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
-              >
-                <img src={"/images/Calendar.svg"} />
-                <div>Date and Time</div>
-              </div>
-              <div
-                onClick={() => setGuestsOpen(true)}
-                className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
-              >
-                <img src={"/images/guests.svg"} />
-                <div>Guests</div>
-              </div>
-              <div
-                onClick={() => setSubEventsOpen(true)}
-                className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
-              >
-                <img src={"/images/Subevents.svg"} />
-                <div>Sub Events</div>
-              </div>
-              <div
-                onClick={() => setCoHostOpen(true)}
-                className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
-              >
-                <img src={"/images/co-hostDetails.svg"} />
-                <div>Co-host details</div>
-              </div>
-              <div
-                onClick={() => setVendorsOpen(true)}
-                className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
-              >
-                <img src={"/images/vendors.svg"} />
-                <div>Vendors</div>
-              </div>
-              <div
-                onClick={() => setBudgetOpen(true)}
-                className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
-              >
-                <img src={"/images/Budget.svg"} />
-                <div>Budget</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mt-3">
-          <div className=" w-full rounded-xl bg-white shadow grid grid-cols-3 h-8">
-            <div
-              onClick={() => setStatus(0)}
-              className={
-                status === 0
-                  ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
-                  : "bg-white rounded-xl w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium text-lg"
-              }
-            >
-              Post
-            </div>
-            <div
-              onClick={() => setStatus(1)}
-              className={
-                status === 1
-                  ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
-                  : "bg-white rounded-xl w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium text-lg"
-              }
-            >
-              Photos
-            </div>
-            <div
-              onClick={() => setStatus(2)}
-              className={
-                status === 2
-                  ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
-                  : "bg-white rounded-xl w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium text-lg"
-              }
-            >
-              Write a post
-            </div>
-          </div>
-          {status === 0 ? (
-            <div className="h-[150vh] overflow-y-scroll">
-              {" "}
-              {posts?.map((post, index) =>
-                post.image ? (
-                  <div
-                    key={index}
-                    className="w-full z-50 bg-gray-200 my-3 p-3 rounded-xl"
+                <div className="text-white text-base font-medium mb-1">
+                  Photo
+                </div>
+                <div className="flex">
+                  <ImageUploading
+                    value={profilePic}
+                    onChange={onChange}
+                    dataURLKey="data_url"
+                    acceptType={["jpg", "jpeg", "png", "svg"]}
                   >
-                    <img
-                      className="w-full mb-2 rounded-lg"
-                      src={post.image[0]}
+                    {({
+                      imageList,
+                      onImageUpload,
+                      onImageRemoveAll,
+                      onImageUpdate,
+                      onImageRemove,
+                      isDragging,
+                      dragProps,
+                    }) => (
+                      // write your building UI
+
+                      <div className="flex space-x-2">
+                        {!profilePic && (
+                          <button
+                            className="w-32 h-32 rounded-xl bg-gray-100 bg-opacity-20 border flex justify-center items-center text-3xl font-black text-gray-600"
+                            onClick={onImageUpload}
+                            {...dragProps}
+                          >
+                            +
+                          </button>
+                        )}
+                        {profileUploading && (
+                          <div>
+                            <Spinner />
+                          </div>
+                        )}
+
+                        {!profileUploading &&
+                          imageList.map((image, index) => (
+                            <div key={index} className="">
+                              <img src={image.data_url} alt="" width="100" />
+                              <div className="flex space-x-3 justify-end pt-1 items-center">
+                                <button onClick={() => onImageUpdate(index)}>
+                                  <PencilAltIcon className="w-6 text-gray-500" />
+                                </button>
+                                <button onClick={() => setProfilePic("")}>
+                                  <TrashIcon className="w-6 text-red-500" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </ImageUploading>
+                </div>
+              </div>
+              {profilePicUrl && (
+                <div>
+                  <img className="w-32" src={profilePicUrl} />
+                </div>
+              )}
+            </div>
+            <div
+              onClick={() => setVenueOpen(true)}
+              className="mt-3 w-dull py-2 border text-white border-white   flex justify-center items-center hover:bg-teal-50 transition duration-200 hover:text-teal-500 rounded-xl cursor-pointer"
+            >
+              Enter your venue
+            </div>
+
+            <div className="my-4">
+              <div className="z-30 text-white my-4 text-center font-semibold text-lg">
+                Choose your Event Type
+                <span className="text-red-500 text-base">*</span>
+              </div>
+              <RadioGroup
+                className="grid grid-cols-3 gap-3"
+                value={selectedEventType}
+                onChange={(e) => setSelectedEventType(e)}
+              >
+                {eventTypes?.map((type) => (
+                  <RadioGroup.Option
+                    className={({ active, checked }) =>
+                      `${
+                        active
+                          ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                          : ""
+                      }
+                  ${
+                    checked
+                      ? "bg-sky-900 bg-opacity-75 text-white"
+                      : "bg-white text-white bg-opacity-20"
+                  }
+                    relative flex flex-col justify-center items-center text-white cursor-pointer rounded-lg p-3 shadow-md focus:outline-none`
+                    }
+                    key={type._id}
+                    value={type._id}
+                  >
+                    <Image
+                      src={type.avatar}
+                      width={400}
+                      height={400}
+                      alt={"eventType"}
+                      className="w-full rounded-lg h-24"
                     />
-                    <div className="w-full flex justify-between items-center">
+                    <div>{type.name}</div>
+                  </RadioGroup.Option>
+                ))}
+              </RadioGroup>
+            </div>
+
+            <div className="w-full my-3">
+              <div className="my-4 text-white text-50 text-center font-semibold text-lg">
+                More details
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div
+                  onClick={() => setDateOpen(true)}
+                  className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 text-white flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
+                >
+                  <img src={"/images/Calendar.svg"} />
+                  <div>Date and Time</div>
+                </div>
+                <div
+                  onClick={() => setGuestsOpen(true)}
+                  className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 text-white flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
+                >
+                  <img src={"/images/guests.svg"} />
+                  <div>Guests</div>
+                </div>
+                <div
+                  onClick={() => setSubEventsOpen(true)}
+                  className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 text-white flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
+                >
+                  <img src={"/images/Subevents.svg"} />
+                  <div>Sub Events</div>
+                </div>
+                <div
+                  onClick={() => setCoHostOpen(true)}
+                  className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 text-white flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
+                >
+                  <img src={"/images/co-hostDetails.svg"} />
+                  <div>Co-host details</div>
+                </div>
+                <div
+                  onClick={() => setVendorsOpen(true)}
+                  className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 text-white flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
+                >
+                  <img src={"/images/vendors.svg"} />
+                  <div>Vendors</div>
+                </div>
+                <div
+                  onClick={() => setBudgetOpen(true)}
+                  className="p-3 flex cursor-pointer shadow-xl hover:bg-slate-700 text-white flex-col text-gray-700 hover:text-white justify-center items-center bg-gray-100 bg-opacity-20 rounded-2xl"
+                >
+                  <img src={"/images/Budget.svg"} />
+                  <div>Budget</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="md:col-span-2 mt-3">
+            <div className=" w-full rounded-xl gap-3 shadow grid grid-cols-3 h-8">
+              <div
+                onClick={() => setStatus(0)}
+                className={
+                  status === 0
+                    ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
+                    : "bg-white rounded-xl w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium text-lg"
+                }
+              >
+                Post
+              </div>
+              <div
+                onClick={() => setStatus(1)}
+                className={
+                  status === 1
+                    ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
+                    : "bg-white rounded-xl w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium text-lg"
+                }
+              >
+                Photos
+              </div>
+              <div
+                onClick={() => setStatus(2)}
+                className={
+                  status === 2
+                    ? "bg-indigo-700 rounded-xl w-full cursor-pointer text-white flex justify-center items-center font-medium text-lg"
+                    : "bg-white rounded-xl w-full cursor-pointer text-gray-700 flex justify-center items-center font-medium text-lg"
+                }
+              >
+                Write a post
+              </div>
+            </div>
+            {status === 0 ? (
+              <div className="w-full md:w-1/2 ">
+                {" "}
+                {posts?.map((post, index) =>
+                  post.image ? (
+                    <div
+                      key={index}
+                      className="w-full z-30 bg-gray-200 my-3 p-3 rounded-xl"
+                    >
+                      <img
+                        className="w-full mb-2 rounded-lg"
+                        src={post.image[0]}
+                      />
+                      <div className="w-full flex justify-between items-center">
+                        <div className="flex-1">
+                          <div className="text-lg font-bold mb-2">
+                            {post.title}
+                          </div>
+                          <div>{post.description}</div>
+                        </div>
+                        <div className="flex space-x-3">
+                          <div className="flex items-center space-x-1">
+                            <div>{post.likeCount}</div>
+                            <HeartIcon
+                              onClick={() => postLike(post._id)}
+                              className="w-4 cursor-pointer"
+                            />
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <div>{post.commentCount}</div>
+                            <ChatAltIcon
+                              onClick={() => setChatboxOpen(!chatboxOpen)}
+                              className="w-4 cursor-pointer"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        {chatboxOpen ? (
+                          <div className="mt-2">djkhkdjhkd</div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      key={index}
+                      className="w-full flex justify-between items-center bg-white bg-opacity-20 my-3 p-3 rounded-xl"
+                    >
                       <div className="flex-1">
                         <div className="text-lg font-bold mb-2">
                           {post.title}
@@ -991,198 +1058,170 @@ const index = () => {
                       <div className="flex space-x-3">
                         <div className="flex items-center space-x-1">
                           <div>{post.likeCount}</div>
-                          <HeartIcon
-                            onClick={() => postLike(post._id)}
-                            className="w-4 cursor-pointer"
-                          />
+                          <HeartIcon className="w-4 cursor-pointer" />
                         </div>
                         <div className="flex items-center space-x-1">
-                          <div>{post.commentCount}</div>
-                          <ChatAltIcon
-                            onClick={() => setChatboxOpen(!chatboxOpen)}
-                            className="w-4 cursor-pointer"
-                          />
+                          <div>{post.likeCount}</div>
+                          <ChatAltIcon className="w-4 cursor-pointer" />
                         </div>
                       </div>
                     </div>
-                    <div>
-                      {chatboxOpen ? (
-                        <div className="mt-2">djkhkdjhkd</div>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    key={index}
-                    className="w-full flex justify-between items-center bg-white bg-opacity-20 my-3 p-3 rounded-xl"
-                  >
-                    <div className="flex-1">
-                      <div className="text-lg font-bold mb-2">{post.title}</div>
-                      <div>{post.description}</div>
-                    </div>
-                    <div className="flex space-x-3">
-                      <div className="flex items-center space-x-1">
-                        <div>{post.likeCount}</div>
-                        <HeartIcon className="w-4 cursor-pointer" />
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <div>{post.likeCount}</div>
-                        <ChatAltIcon className="w-4 cursor-pointer" />
-                      </div>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          ) : status === 1 ? (
-            <div className="mt-3 grid grid-cols-3 gap-3">
-              <div className="flex">
-                <ImageUploading
-                  // multiple
-                  // maxNumber={}
-                  value={photo}
-                  onChange={onPhotoChange}
-                  dataURLKey="data_url"
-                  acceptType={["jpg", "jpeg", "png", "svg"]}
-                >
-                  {({
-                    imageList,
-                    onImageUpload,
-                    onImageRemoveAll,
-                    onImageUpdate,
-                    onImageRemove,
-                    isDragging,
-                    dragProps,
-                  }) => (
-                    // write your building UI
-
-                    <div className="flex space-x-2">
-                      <button
-                        className="w-32 h-32 rounded-xl bg-gray-100 border flex justify-center items-center text-3xl font-black text-gray-600"
-                        onClick={onImageUpload}
-                        {...dragProps}
-                      >
-                        +
-                      </button>
-                      {photoUploading && (
-                        <div>
-                          <Spinner />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </ImageUploading>
+                  )
+                )}
               </div>
-              {photos.map((photo, index) => (
+            ) : status === 1 ? (
+              <div className="mt-3 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-3">
+                <div className="flex">
+                  <ImageUploading
+                    // multiple
+                    // maxNumber={}
+                    value={photo}
+                    onChange={onPhotoChange}
+                    dataURLKey="data_url"
+                    acceptType={["jpg", "jpeg", "png", "svg"]}
+                  >
+                    {({
+                      imageList,
+                      onImageUpload,
+                      onImageRemoveAll,
+                      onImageUpdate,
+                      onImageRemove,
+                      isDragging,
+                      dragProps,
+                    }) => (
+                      // write your building UI
+
+                      <div className="flex space-x-2">
+                        <button
+                          className="w-32 h-32 rounded-xl bg-gray-100 border flex justify-center items-center text-3xl font-black text-gray-600"
+                          onClick={onImageUpload}
+                          {...dragProps}
+                        >
+                          +
+                        </button>
+                        {photoUploading && (
+                          <div>
+                            <Spinner />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </ImageUploading>
+                </div>
+                {photos.map((photo, index) => (
+                  <div>
+                    <img
+                      className="w-32 h-32 rounded-xl shadow-lg"
+                      src={photo.thumbnailImage}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-3 my-4 rounded-xl shadow-xl">
                 <div>
-                  <img
-                    className="w-32 h-32 rounded-xl shadow-lg"
-                    src={photo.thumbnailImage}
+                  <div className="text-white text-base font-medium mb-1">
+                    Title <span className="text-red-500 text-base">*</span>
+                  </div>
+                  <input
+                    className="w-full py-2 border bg-gray-100 bg-opacity-20 rounded-lg px-4 border-gray-400"
+                    value={postTitle}
+                    onChange={(e) => setPostTitle(e.target.value)}
+                    placeholder={"Enter the title of your event"}
                   />
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="p-3 border border-gray-300 mt-4 rounded-xl shadow-xl">
-              <div>
-                <div className="text-gray-700 text-base font-medium mb-1">
-                  Title <span className="text-red-500 text-base">*</span>
+                <div>
+                  <div className="text-white text-base font-medium mb-1">
+                    Description
+                  </div>
+                  <textarea
+                    className="w-full py-2 border bg-gray-100 bg-opacity-20 rounded-lg px-4 border-gray-400"
+                    value={postDescription}
+                    rows={4}
+                    onChange={(e) => setPostDescription(e.target.value)}
+                    placeholder={"Enter the title of your event"}
+                  />
                 </div>
-                <input
-                  className="w-full py-2 border rounded-lg px-4 border-gray-400"
-                  value={postTitle}
-                  onChange={(e) => setPostTitle(e.target.value)}
-                  placeholder={"Enter the title of your event"}
-                />
-              </div>
-              <div>
-                <div className="text-gray-700 text-base font-medium mb-1">
-                  Description
+                <div className="text-white text-base font-medium mb-1">
+                  Photo
                 </div>
-                <textarea
-                  className="w-full py-2 border rounded-lg px-4 border-gray-400"
-                  value={postDescription}
-                  rows={4}
-                  onChange={(e) => setPostDescription(e.target.value)}
-                  placeholder={"Enter the title of your event"}
-                />
-              </div>
-              <div className="flex">
-                <ImageUploading
-                  multiple
-                  // maxNumber={}
-                  value={postImage}
-                  onChange={onPostChange}
-                  dataURLKey="data_url"
-                  acceptType={["jpg", "jpeg", "png", "svg"]}
-                >
-                  {({
-                    imageList,
-                    onImageUpload,
-                    onImageRemoveAll,
-                    onImageUpdate,
-                    onImageRemove,
-                    isDragging,
-                    dragProps,
-                  }) => (
-                    // write your building UI
+                <div className="flex">
+                  <ImageUploading
+                    multiple
+                    // maxNumber={}
+                    value={postImage}
+                    onChange={onPostChange}
+                    dataURLKey="data_url"
+                    acceptType={["jpg", "jpeg", "png", "svg"]}
+                  >
+                    {({
+                      imageList,
+                      onImageUpload,
+                      onImageRemoveAll,
+                      onImageUpdate,
+                      onImageRemove,
+                      isDragging,
+                      dragProps,
+                    }) => (
+                      // write your building UI
 
-                    <div className="flex space-x-2">
-                      <button
-                        className="w-32 h-32 rounded-xl bg-gray-100 border flex justify-center items-center text-3xl font-black text-gray-600"
-                        onClick={onImageUpload}
-                        {...dragProps}
-                      >
-                        +
-                      </button>
-                      {uploadLoading && (
-                        <div>
-                          <Spinner />
-                        </div>
-                      )}
-
-                      {!uploadLoading &&
-                        imageList.map((image, index) => (
-                          <div key={index} className="">
-                            <img src={image.data_url} alt="" width="100" />
-                            <div className="flex space-x-3 justify-end pt-1 items-center">
-                              <button onClick={() => onImageUpdate(index)}>
-                                <PencilAltIcon className="w-6 text-gray-500" />
-                              </button>
-                              <button onClick={() => setPostImage("")}>
-                                <TrashIcon className="w-6 text-red-500" />
-                              </button>
-                            </div>
+                      <div className="flex space-x-2">
+                        <button
+                          className="w-32 h-32 rounded-xl text-white bg-gray-100 bg-opacity-20 border flex justify-center items-center text-3xl font-black text-gray-600"
+                          onClick={onImageUpload}
+                          {...dragProps}
+                        >
+                          +
+                        </button>
+                        {uploadLoading && (
+                          <div>
+                            <Spinner />
                           </div>
-                        ))}
+                        )}
+
+                        {!uploadLoading &&
+                          imageList.map((image, index) => (
+                            <div key={index} className="">
+                              <img src={image.data_url} alt="" width="100" />
+                              <div className="flex space-x-3 justify-end pt-1 items-center">
+                                <button onClick={() => onImageUpdate(index)}>
+                                  <PencilAltIcon className="w-6 text-gray-500" />
+                                </button>
+                                <button onClick={() => setPostImage("")}>
+                                  <TrashIcon className="w-6 text-red-500" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </ImageUploading>
+                </div>
+                <div>
+                  {postError.trim() !== "" && (
+                    <div className=" mt-2 w-full py-2 rounded-lg bg-red-500 text-white shadow flex justify-center items-center">
+                      {postError}
                     </div>
                   )}
-                </ImageUploading>
+                </div>
+                <button
+                  onClick={() => createPost()}
+                  disabled={uploadLoading || creatingPost}
+                  className="w-full disabled:cursor-wait text-white disabled:bg-gray-100 px-4 py-2 mt-3 border border-gray-300 rounded-xl shadow hover:bg-teal-100 hover:text-teal-500"
+                >
+                  {creatingPost ? (
+                    <div className="flex w-max text-white mx-auto justify-between items-center space-x-2">
+                      <Spinner />
+                      <div>Add a post</div>
+                    </div>
+                  ) : (
+                    "Add a post"
+                  )}
+                </button>
               </div>
-              <div>
-                {postError.trim() !== "" && (
-                  <div className=" mt-2 w-full py-2 rounded-lg bg-red-500 text-white shadow flex justify-center items-center">
-                    {postError}
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => createPost()}
-                disabled={uploadLoading || creatingPost}
-                className="w-full disabled:cursor-wait disabled:bg-gray-100 px-4 py-2 mt-3 border border-gray-300 rounded-xl shadow hover:bg-teal-100 hover:text-teal-500"
-              >
-                {creatingPost ? (
-                  <div className="flex w-max mx-auto justify-between items-center space-x-2">
-                    <Spinner />
-                    <div>Add a post</div>
-                  </div>
-                ) : (
-                  "Add a post"
-                )}
-              </button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
       <div className="w-full flex justify-end space-x-3">
         <button
@@ -1279,7 +1318,7 @@ const index = () => {
       <Transition appear show={venueOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           onClose={() => setVenueOpen(false)}
         >
           <Transition.Child
@@ -1347,7 +1386,7 @@ const index = () => {
       <Transition appear show={dateOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           onClose={() => setDateOpen(false)}
         >
           <Transition.Child
@@ -1413,7 +1452,7 @@ const index = () => {
       <Transition appear show={guestsOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           onClose={() => {
             setGuestsOpen(false);
             setName("");
@@ -1553,7 +1592,7 @@ const index = () => {
       <Transition appear show={coHostOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="relative z-10"
+          className="relative z-50"
           onClose={() => {
             setCoHostOpen(false);
             setName("");

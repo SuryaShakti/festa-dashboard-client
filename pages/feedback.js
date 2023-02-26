@@ -54,21 +54,21 @@ const feedback = () => {
   };
 
   return (
-    <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
-      <div className="bg-white py-5 border-b border-gray-200">
+    <div className="flex z-50 bg-[#0D0821]  rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
+      <div className="z-50 py-5 border-b border-gray-200">
         <div className="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
           <div className="ml-4 mt-2">
-            <h3 className="text-2xl leading-6 font-medium text-gray-900">
+            <h3 className="z-50 text-2xl leading-6 font-medium text-white">
               Feedback
             </h3>
           </div>
         </div>
       </div>
-      <div className="mt-5">
-        <div className="text-xl text-gray-700 font-semibold ">
+      <div className="z-50 first-letter:mt-5">
+        <div className="text-xl text-white font-semibold ">
           Send us your feedback!
         </div>
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-white">
           Do you have a suggestion or found some bug? Let us know in the field
           below.
         </div>
@@ -79,8 +79,9 @@ const feedback = () => {
           {...thirdExample}
         />
         <textarea
-          className="border p-3 w-full border-gray-400 rounded-xl md:w-1/2"
+          className="border p-3 w-full border-gray-400 bg-transparent text-white  rounded-xl md:w-1/2"
           value={description}
+          placeholder="Describe your feedback"
           onChange={(e) => setDescription(e.target.value)}
           rows={10}
         />
@@ -100,7 +101,7 @@ const feedback = () => {
             />
             <label
               htmlFor="default-radio-1"
-              className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              className="ml-2 text-sm font-medium text-white dark:text-gray-300"
             >
               Suggestion
             </label>
@@ -120,7 +121,7 @@ const feedback = () => {
             />
             <label
               htmlFor="default-radio-2"
-              className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              className="ml-2 text-sm font-medium text-white dark:text-gray-300"
             >
               Issue
             </label>
@@ -140,7 +141,7 @@ const feedback = () => {
             />
             <label
               htmlFor="default-radio-3"
-              className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              className="ml-2 text-sm font-medium text-white dark:text-gray-300"
             >
               Others
             </label>
