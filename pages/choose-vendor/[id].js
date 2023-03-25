@@ -81,12 +81,43 @@ const Vendor = () => {
     }
   }, [router.query.id]);
 
+  const requestVendor = async () => {
+    const token = localStorage.getItem("token");
+
+    var data = JSON.stringify({
+      event: router.query.eventId,
+      vendor: router.query.id,
+    });
+
+    var config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: "https://api.test.festabash.com/v1/event-management/event-vendor",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        router.push(`/messages/${response.data.conversationVendorData._id}`);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
   return (
     <div className="flex z-50 bg-[#0D0821] rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
       <div className="z-50 text-white py-5 border-b border-gray-200">
-        <div className="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-          <div className="ml-4 mt-2">
-            <h3 className="text-2xl leading-6 font-medium">Vendor Details</h3>
+        <div className="z-50 -ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
+          <div className="z-50  ml-4 mt-2">
+            <h3 className="z-50 text-2xl leading-6 font-medium">
+              Vendor Details
+            </h3>
           </div>
         </div>
       </div>
@@ -291,6 +322,14 @@ const Vendor = () => {
             </div>
           </div>
         )}
+      </div>
+      <div className="z-50 flex justify-end w-full">
+        <button
+          onClick={() => requestVendor()}
+          className="px-8 py-2 bg-indigo-600 text-white hover:bg-indigo-500 rounded-xl shadow-lg"
+        >
+          Have a chat
+        </button>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ import { useRouter } from "next/router";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment, useRef } from "react";
 
-const ViewVendors = () => {
+const ViewVendors = ({ page = "vendor", eventId }) => {
   const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -186,7 +186,11 @@ const ViewVendors = () => {
             vendors.map((vendor, index) => (
               <div
                 key={index}
-                onClick={() => router.push(`/vendor/${vendor._id}`)}
+                onClick={() => {
+                  eventId.trim() !== ""
+                    ? router.push(`/${page}/${vendor._id}?eventId=${eventId}`)
+                    : router.push(`/${page}/${vendor._id}`);
+                }}
                 className="cursor-pointer hover:shadow-xl hover:bg-white hover:bg-opacity-40  flex justify-between my-3 items-center w-full p-2 bg-gray-100  rounded-xl"
               >
                 <div className="flex-1 flex space-x-3 items-center justify-start">

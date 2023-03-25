@@ -1,5 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
+import { ChevronRightIcon } from "@heroicons/react/outline";
 import axios from "axios";
+import { useRouter } from "next/router";
 import React, { Fragment, useEffect, useState } from "react";
 import Spinner from "../Spinner";
 import ViewVendors from "../ViewVednors";
@@ -9,6 +11,8 @@ const VendorDialog = ({ vendorsOpen, setVendorsOpen, eventId }) => {
   const [vendors, setVendors] = useState([]);
   const [addVendorOpen, setAddVendorOpen] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
+
+  const router = useRouter();
 
   const getVendors = async () => {
     const token = localStorage.getItem("token");
@@ -84,7 +88,38 @@ const VendorDialog = ({ vendorsOpen, setVendorsOpen, eventId }) => {
                       {loading ? (
                         <Spinner />
                       ) : vendors.length > 0 ? (
-                        <div></div>
+                        vendors
+                          ?.filter((vendor, index) => vendor.status === 1)
+                          .map((vendor, index) => (
+                            <div
+                              key={index}
+                              onClick={() =>
+                                router.push(
+                                  `/choose-vendor/${vendor?.vendor?._id}?eventId=${eventId}`
+                                )
+                              }
+                              className="cursor-pointer hover:shadow-xl hover:bg-white hover:bg-opacity-40  flex justify-between my-3 items-center w-full p-2 bg-gray-100  rounded-xl"
+                            >
+                              <div className="flex-1 flex space-x-3 items-center justify-start">
+                                <img
+                                  className="h-20 object-cover"
+                                  src={vendor?.vendor.attachments[0]}
+                                  alt="vendor"
+                                />
+                                <div>
+                                  <div className="mb-1 text-lg text-gray-700 font-semibold">
+                                    {vendor?.vendor?.brand}
+                                  </div>
+                                  <div className="text-gray-600">
+                                    {vendor?.vendor.description}
+                                  </div>
+                                </div>
+                              </div>
+                              <div>
+                                <ChevronRightIcon className="text-white w-5 " />
+                              </div>
+                            </div>
+                          ))
                       ) : (
                         <div className="mt-5 text-center">
                           There are no vendors added
@@ -146,7 +181,7 @@ const VendorDialog = ({ vendorsOpen, setVendorsOpen, eventId }) => {
                   </Dialog.Title>
                   <div>
                     <div className="mt-2">
-                      <ViewVendors />
+                      <ViewVendors eventId={eventId} page="choose-vendor" />
                     </div>
 
                     <div className="mt-4">

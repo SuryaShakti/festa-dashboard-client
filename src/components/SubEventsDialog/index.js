@@ -17,10 +17,10 @@ const SubEventDialog = ({
   setSubEventsOpen,
   subevents,
   data,
+  eventId,
 }) => {
   const router = useRouter();
   const [createSubEventOpen, setCreateSubEventOpen] = useState(false);
-
   const [subTitle, setSubTitle] = useState("");
   const [subDescription, setSubDescription] = useState("");
   const [note, setNote] = useState("");
@@ -100,21 +100,6 @@ const SubEventDialog = ({
 
   const createSubEvent = async () => {
     const token = localStorage.getItem("token");
-
-    console.log(address);
-    console.log({
-      name: subTitle,
-      description: subDescription,
-      attachments: [photoUrl],
-      address: {
-        addressLine1: addressLine,
-        city: cityText,
-        coordinates: [85.2045, 22.4578],
-      },
-      startTime: selectedDates[0].startDate.toISOString(),
-      endTime: selectedDates[0].endDate.toISOString(),
-      event: router.query.eventId,
-    });
     setLoading(true);
     var data = JSON.stringify({
       name: subTitle,
@@ -133,7 +118,7 @@ const SubEventDialog = ({
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/sub-event-management/sub-event",
+      url: "https://api.test.festabash.com/v1/sub-event-management/sub-event/",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -183,7 +168,7 @@ const SubEventDialog = ({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full h-[80vh] max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col">
+                <Dialog.Panel className="w-full min-h-[80vh] max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
@@ -195,7 +180,12 @@ const SubEventDialog = ({
                       ? subevents?.map((subevent, index) => (
                           <div
                             key={index}
-                            className="mb-3 w-full  flex space-x-2 px-4 py-2 md:items-center rounded-2xl bg-gray-200 shadow-xl"
+                            onClick={() =>
+                              router.push(
+                                `/subevent/${subevent._id}?event=${router.query.eventId}`
+                              )
+                            }
+                            className="mb-3 w-full cursor-pointer hover:shaadow-2xl flex space-x-2 px-4 py-2 md:items-center rounded-2xl bg-gray-200 shadow-xl"
                           >
                             <div className="">
                               <img

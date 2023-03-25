@@ -16,6 +16,14 @@ const Home = () => {
   const [otp, setOtp] = useState("");
   const [operation, setOperation] = useState("");
   const [error, setError] = useState({ field: "", message: "" });
+  const [isVendor, setIsVendor] = useState(false);
+
+  const toggleState = () => {
+    setIsVendor(!isVendor);
+    // if (!isVendor) user {
+    router.push("https:///festa-vendor.vercel.app/");
+    // }
+  };
 
   const googleLoginHandler = () => {};
   const fbLoginHandler = () => {};
@@ -201,6 +209,33 @@ const Home = () => {
                     <p class="mt-px text-xs text-white">{error.message}</p>
                   )}
                 </div>
+                <div className="my-2">
+                  <label
+                    htmlFor="toggle"
+                    className="flex items-center cursor-pointer"
+                  >
+                    <div className="mr-3 text-gray-100 font-medium">User</div>
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        id="toggle"
+                        name="toggle"
+                        className="sr-only"
+                        onChange={toggleState}
+                        checked={isVendor}
+                      />
+                      <div className="block bg-gray-600 w-12 h-6 rounded-full"></div>
+                      <div
+                        className={`${
+                          isVendor
+                            ? "translate-x-6 bg-indigo-600"
+                            : "translate-x-0 bg-gray-200"
+                        } absolute left-0 top-0 w-6 h-6 rounded-full transition-transform`}
+                      ></div>
+                    </div>
+                    <div className="ml-3 text-gray-100 font-medium">Vendor</div>
+                  </label>
+                </div>
                 <button
                   onClick={() => {
                     setOperation("login");
@@ -210,25 +245,6 @@ const Home = () => {
                 >
                   Send OTP
                 </button>
-                <div className="w-full flex space-x-2 items-center justify-between my-5">
-                  <div className="w-5/12 h-px bg-white"></div>
-                  <div className="w-2/12  text-center">or</div>
-                  <div className="w-5/12 h-px bg-white"></div>
-                </div>
-                <div className="w-full flex justify-center space-x-5">
-                  <div
-                    onClick={() => googleLoginHandler()}
-                    className="cursor-pointer px-8 py-4 border border-white rounded-xl "
-                  >
-                    <img src="/images/google.svg" />
-                  </div>
-                  <div
-                    onClick={() => fbLoginHandler()}
-                    className="cursor-pointer px-8 py-4 border border-white rounded-xl "
-                  >
-                    <img src="/images/fb.svg" />
-                  </div>
-                </div>
                 <div className="w-full text-xs text-gray-400 justify-center mt-2 flex space-x-1">
                   <div>Don't have an account ?</div>
                   <div

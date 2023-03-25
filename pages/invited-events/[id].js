@@ -147,44 +147,42 @@ const InvitedEventDetails = () => {
   }, []);
 
   return (
-    <div className="flex bg-white rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
-      <div className="">
-        <div className="bg-white py-5 border-b border-gray-200">
-          <div className="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
+    <div className="flex z-50 bg-[#0D0821] rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
+      <div className="z-50">
+        <div className="z-50 py-5 border-b border-gray-200">
+          <div className="z-50 -ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
             <div className="ml-4 mt-2">
-              <h3 className="text-2xl leading-6 font-medium text-gray-900">
+              <h3 className="z-50 text-2xl leading-6 font-medium text-white">
                 Event Details
               </h3>
             </div>
           </div>
         </div>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2">
-          <div className="flex flex-col items-center md:items-start">
-            <div className="w-full md:w-10/12 shadow-xl rounded-2xl">
-              <div className="h-12 rounded-t-2xl bg-teal-500 px-5 flex justify-between items-center text-xs md:text-lg text-white font-semibold">
+        <div className="z-50 mt-6 grid grid-cols-1 md:grid-cols-2">
+          <div className="z-50 flex flex-col items-center md:items-start">
+            <div className="z-50 w-full md:w-10/12 shadow-xl rounded-2xl">
+              <div className="h-12 rounded-t-2xl bg-white px-5 flex justify-between items-center text-xs md:text-lg text-gray-700 font-semibold">
                 <div>{data?.startTime.slice(0, 10)}</div>
                 <div>
                   Time : {data?.startTime.slice(11, 16)} -{" "}
                   {data?.endTime.slice(11, 16)}
                 </div>
               </div>
-              <div className="p-3 md:p-5 bg-gray-200 rounded-b-2xl flex space-x-3">
+              <div className="p-3 md:p-5 bg-gray-100 bg-opacity-20 rounded-b-2xl flex space-x-3">
                 <div className="">
                   <img
                     className="h-24 w-24 md:h-32 md:w-32 rounded-lg"
                     src={data?.attachments[0]}
                   />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 text-white">
                   <div className="font-semibold">{data?.name}</div>
-                  <div className="text-xs md:text-base text-gray-400">
+                  <div className="text-xs md:text-base ">
                     {data?.description}
                   </div>
                   <div className="hidden md:flex space-x-2">
-                    <div className="text-gray-400">
-                      {data?.address?.addressLine1} ,
-                    </div>
-                    <div className="text-gray-400">{data?.address?.city}</div>
+                    <div className="">{data?.address?.addressLine1} ,</div>
+                    <div className="">{data?.address?.city}</div>
                   </div>
                   <button
                     onClick={() => setIsOpen(true)}
@@ -195,12 +193,14 @@ const InvitedEventDetails = () => {
                 </div>
               </div>
             </div>
-            <div className="my-4 font-semibold text-lg">Sub Events</div>
+            <div className="my-4 font-semibold text-lg text-white">
+              Sub Events
+            </div>
             {data?.subEvents.length > 0
               ? data?.subEvents?.map((subevent, index) => (
                   <div
                     key={index}
-                    className="mb-3 w-full md:w-10/12 flex space-x-2 px-4 py-2 md:items-center rounded-2xl bg-gray-200 shadow-xl"
+                    className="z-50 mb-3 w-full md:w-10/12 flex space-x-2 px-4 py-2 md:items-center rounded-2xl bg-white bg-opacity-20 shadow-xl"
                   >
                     <div className="">
                       <img
@@ -208,7 +208,7 @@ const InvitedEventDetails = () => {
                         src={subevent?.attachments[0]}
                       />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 text-white">
                       <div className="font-semibold md:text-xl mb-2">
                         {subevent?.name}
                       </div>
@@ -255,7 +255,7 @@ const InvitedEventDetails = () => {
                   post.image ? (
                     <div
                       key={index}
-                      className="w-full z-50 bg-gray-200 shadow-xl my-3 p-3 rounded-xl"
+                      className="w-full z-50 bg-gray-100 text-white bg-opacity-20 shadow-xl my-3 p-3 rounded-xl"
                     >
                       <img
                         className="w-full mb-2 rounded-lg"
@@ -294,7 +294,7 @@ const InvitedEventDetails = () => {
                   ) : (
                     <div
                       key={index}
-                      className="w-full flex justify-between items-center bg-white bg-opacity-20 my-3 p-3 rounded-xl"
+                      className="w-full flex justify-between items-center bg-white text-white bg-opacity-20 my-3 p-3 rounded-xl"
                     >
                       <div className="flex-1">
                         <div className="text-lg font-bold mb-2">
@@ -318,7 +318,6 @@ const InvitedEventDetails = () => {
               </div>
             ) : photos.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 mt-5 gap-3">
-                <div className="bg-gray-200 w-32 h-32 rounded-xl"></div>
                 {photos.map((photo, index) => (
                   <div>
                     <img

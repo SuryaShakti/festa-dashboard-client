@@ -234,7 +234,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
 
   const DivisionSaveHandler = async () => {
     const token = localStorage.getItem("token");
-    console.log(divisons)
+    console.log(divisons);
 
     var data = JSON.stringify({
       amount: totalSubEventAmount,
@@ -256,7 +256,9 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
     axios(config)
       .then(function (response) {
         console.log(response.data);
-        toast.success("Budget distriibuted successfully among the categories", {position: "bottom-right"})
+        toast.success("Budget distriibuted successfully among the categories", {
+          position: "bottom-right",
+        });
         setLoading(false);
       })
       .catch(function (error) {
@@ -264,6 +266,30 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
         setLoading(false);
       });
   };
+
+  const [updatedTotal, setUpdatedTotal] = useState(0);
+
+  const newTotal = () => {
+    console.log(selectedSubEvent?.amount);
+    console.log(selectedSubEvent);
+    var sum = 0;
+
+    divisons
+      ?.map((div, index) => div.amount)
+      .sort(function (a, b) {
+        return b - a;
+      })
+      .map((a, index) => (sum = sum + a))[0];
+
+    console.log(sum);
+
+    console.log(selectedSubEvent?.amount - sum);
+    setUpdatedTotal(selectedSubEvent?.amount - sum);
+  };
+
+  useEffect(() => {
+    newTotal();
+  }, [loading, divisons]);
 
   return (
     <div>
@@ -431,7 +457,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full min-h-[90vh] max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full min-h-[90vh] max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
@@ -566,11 +592,23 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
                             <div>
                               <input
                                 type="number"
-                                className="w-full h-[44px] border rounded-lg px-4 border-gray-400"
+                                className={
+                                  divAmount <= updatedTotal
+                                    ? "w-full h-[44px] border rounded-lg px-4 border-gray-400 text-gray-700"
+                                    : "w-full h-[44px] border rounded-lg px-4 border-gray-400 text-red-600"
+                                }
                                 value={divAmount}
-                                onChange={(e) => setDivAmount(e.target.value)}
+                                onChange={(e) => {
+                                  setDivAmount(e.target.value);
+                                }}
                                 placeholder={"Enter the budget"}
                               />
+                              {divAmount > updatedTotal && (
+                                <div className="text-xs text-red-500">
+                                  Amount exceeded from remaining amount of{" "}
+                                  {updatedTotal}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -584,7 +622,8 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
                         <div className="w-full mb-3 flex justify-end">
                           <button
                             type="button"
-                            className="inline-flex shadow-lg  justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            disabled={divAmount > updatedTotal}
+                            className="inline-flex disabled:bg-gray-100 shadow-lg  justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                             onClick={() => {
                               saveDivisons();
                             }}

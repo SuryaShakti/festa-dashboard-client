@@ -67,8 +67,17 @@ export default function DefaultLayout({ children }) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLatitude(position.coords.latitude);
-          setLongitude(position.coords.longitude);
+          fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              setPlaceName(data.address.city);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
         },
         (error) => {
           console.error(error);
@@ -85,21 +94,11 @@ export default function DefaultLayout({ children }) {
     getLocation();
   }, []);
 
-  useEffect(() => {
-    if (latitude && longitude) {
-      fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-          setPlaceName(data.name);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  }, [latitude, longitude]);
+  const logoutHandler = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    router.push("/");
+  };
 
   return (
     <>
@@ -208,6 +207,21 @@ export default function DefaultLayout({ children }) {
                         {item.name}
                       </a>
                     ))}
+                    <button
+                      // key={item.name}
+                      // href={}
+                      onClick={() => logoutHandler()}
+                      className={classNames(
+                        "text-white w-full hover:bg-indigo-600 hover:bg-opacity-75",
+                        "group z-50 flex items-center px-2 py-2 text-base font-medium rounded-md"
+                      )}
+                    >
+                      <UsersIcon
+                        className="mr-4 flex-shrink-0 h-6 w-6 text-indigo-300"
+                        aria-hidden="true"
+                      />
+                      Logout
+                    </button>
                   </nav>
                 </div>
               </div>
@@ -281,6 +295,23 @@ export default function DefaultLayout({ children }) {
                     {item.name}
                   </a>
                 ))}
+                <button
+                  onClick={() => logoutHandler()}
+                  className={classNames(
+                    "text-white w-full hover:bg-white hover:text-gray-900 hover:bg-opacity-75",
+                    "group z-50 flex items-center px-2 py-2 text-base font-medium rounded-l-full"
+                  )}
+                >
+                  <UsersIcon
+                    // className="mr-3 flex-shrink-0 h-6 w-6 text-white"
+                    className={classNames(
+                      "text-white  hover:bg-opacity-75",
+                      "mr-3 z-50 flex-shrink-0 h-6 w-6 text-white"
+                    )}
+                    aria-hidden="true"
+                  />
+                  Logout
+                </button>
               </nav>
             </div>
             {/* <div className="flex-shrink-0 flex border-t border-indigo-800 p-4">

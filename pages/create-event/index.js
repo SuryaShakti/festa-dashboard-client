@@ -235,6 +235,9 @@ const index = () => {
     var config = {
       method: "get",
       url: `https://api.test.festabash.com/v1/sub-event-management/sub-event?event=${router.query.eventId}`,
+      params: {
+        $limit: 1000,
+      },
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -255,6 +258,9 @@ const index = () => {
     var config = {
       method: "get",
       url: `https://api.test.festabash.com/v1/post?event=${router.query.eventId}`,
+      params: {
+        $limit: 1000,
+      },
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -278,6 +284,9 @@ const index = () => {
     var config = {
       method: "get",
       url: `https://api.test.festabash.com/v1/event-management/event-feed?event=${router.query.eventId}`,
+      params: {
+        $limit: 1000,
+      },
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -565,6 +574,9 @@ const index = () => {
     var config = {
       method: "get",
       url: `https://api.test.festabash.com/v1/event-management/event-guest?event=${router.query.eventId}`,
+      params: {
+        $limit: 1000,
+      },
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -586,6 +598,9 @@ const index = () => {
     var config = {
       method: "get",
       url: `https://api.test.festabash.com/v1/event-management/event-cohost?event=${router.query.eventId}`,
+      params: {
+        $limit: 1000,
+      },
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -609,6 +624,9 @@ const index = () => {
       method: "get",
       maxBodyLength: Infinity,
       url: "https://api.test.festabash.com/v1/event-management/event-type",
+      params: {
+        $limit: 1000,
+      },
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -1382,6 +1400,7 @@ const index = () => {
         setSubEventsOpen={setSubEventsOpen}
         subevents={subevents}
         data={data}
+        eventId={router.query.eventId}
       />
       <Transition appear show={dateOpen} as={Fragment}>
         <Dialog

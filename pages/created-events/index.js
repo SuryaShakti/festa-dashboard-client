@@ -10,26 +10,25 @@ const createdEvents = () => {
   const router = useRouter();
   const [status, setStatus] = useState(0);
 
-  useEffect(() => {
-    !localStorage.getItem("token") ? router.push("/") : fetchData();
-  }, []);
-
   const fetchData = async () => {
     var data = JSON.stringify({});
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: "https://api.test.festabash.com/v1/event-management/event?$sort[createdAt]=-1",
+      url: "https://api.test.festabash.com/v1/event-management/event?$sort[createdAt]=-1&limit=100",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+      },
+      params: {
+        $limit: 1000,
       },
       data: data,
     };
 
     await axios(config)
       .then(function (response) {
-        console.log(response.data);
+        console.log("sjnsj", response.data);
         setData(response.data.data);
       })
       .catch(function (error) {
@@ -85,6 +84,14 @@ const createdEvents = () => {
         console.log(error);
       });
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
 
   return (
     <div className="flex relative bg-[#0D0821] rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">

@@ -17,6 +17,9 @@ const invitedEvents = () => {
     var config = {
       method: "get",
       url: "https://api.test.festabash.com/v1/event-management/invited-events",
+      params: {
+        $limit: 1000,
+      },
       headers: {
         Authorization: `Bearer ${token}`,
       },
