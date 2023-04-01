@@ -11,6 +11,8 @@ import { Autoplay, Pagination, Navigation } from "swiper";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
+import ViewMap from "../../src/components/ViewMap";
+import ImageFull from "../../src/components/imageFull";
 
 const Vendor = () => {
   const router = useRouter();
@@ -19,6 +21,9 @@ const Vendor = () => {
   const [status, setStatus] = useState(0);
   const [ratings, setRatings] = useState(0);
   const [packageLoading, setPackageLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState("");
 
   const thirdExample = {
     size: 20,
@@ -38,6 +43,12 @@ const Vendor = () => {
       url: `https://api.test.festabash.com/v1/vendor-management/vendor/${router.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+      params: {
+        $populate: {
+          path: "categories",
+          populate: ["category"],
+        },
       },
     };
     setLoading(true);
@@ -103,7 +114,7 @@ const Vendor = () => {
                   vendor.attachments.length > 0 ? (
                     <img
                       src={vendor?.attachments[0]}
-                      className="h-40 w-40 z-50 rounded-full"
+                      className="mx-auto h-40 w-40 z-50 rounded-full"
                     />
                   ) : (
                     <div className="bg-gray-200 w-40 h-40 rounded-full"></div>
@@ -112,7 +123,10 @@ const Vendor = () => {
                     <div className="text-xl text-white font-semibold">
                       {vendor.brand}
                     </div>
-                    <div className="text-gray-300">Locality and regionx</div>
+                    <div className="text-gray-300">
+                      {" "}
+                      {vendor?.address?.addressLine1}
+                    </div>
                     <ReactStars
                       classNames={"mx-auto"}
                       emptyIcon={<i className="far fa-star"></i>}
@@ -120,6 +134,26 @@ const Vendor = () => {
                       fullIcon={<i className="fa fa-star"></i>}
                       {...thirdExample}
                     />
+                    <div className="flex space-x-3 items-center mx-auto w-max">
+                      {vendor?.socialLinks?.facebook.trim() !== "" && (
+                        <a
+                          href={vendor?.socialLinks?.facebook}
+                          target="_blank"
+                          className="hover:bg-gray-100 hover:bg-opacity-20 rounded-full p-2"
+                        >
+                          <img src={"/images/facebook.svg"} />
+                        </a>
+                      )}
+                      {vendor?.socialLinks?.instagram.trim() !== "" && (
+                        <a
+                          href={vendor?.socialLinks?.instagram}
+                          target="_blank"
+                          className="hover:bg-gray-100 hover:bg-opacity-20 rounded-full p-2"
+                        >
+                          <img src={"/images/instagram.svg"} />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="mt-5 bg-gray-100 rounded-xl bg-opacity-20 shadow-xl p-4 h-max">
@@ -128,6 +162,12 @@ const Vendor = () => {
                   </div>
                   <div className="text-left max-w-2xl text-white">
                     {vendor.description}
+                  </div>
+                  <div
+                    onClick={() => setIsOpen(true)}
+                    className="mt-3 w-dull py-2 border text-white border-white flex justify-center items-center hover:bg-teal-50 transition duration-200 hover:text-teal-500 rounded-xl cursor-pointer"
+                  >
+                    View Location
                   </div>
                 </div>
               </div>
@@ -195,7 +235,9 @@ const Vendor = () => {
                           <dd class="text-lg text-left font-semibold">
                             {vendor?.categories?.map((cat, index) => (
                               <div className="my-1">
-                                {cat.title ? cat.title : "N/A"}
+                                {cat.category.title
+                                  ? cat.category.title
+                                  : "N/A"}
                               </div>
                             ))}
                           </dd>
@@ -234,8 +276,12 @@ const Vendor = () => {
                         {vendor?.attachments?.map((vendor, index) => (
                           <SwiperSlide key={index}>
                             <img
+                              onClick={() => {
+                                setCurrentImage(vendor);
+                                setImageOpen(true);
+                              }}
                               src={vendor}
-                              className="w-60 h-60 object-cover"
+                              className="w-60 h-60 cursor-pointer object-cover"
                             />
                           </SwiperSlide>
                         ))}
@@ -276,8 +322,12 @@ const Vendor = () => {
                         {vendor?.packages?.map((vendor, index) => (
                           <SwiperSlide key={index}>
                             <img
+                              onClick={() => {
+                                setCurrentImage(vendor);
+                                setImageOpen(true);
+                              }}
                               src={vendor}
-                              className="w-60 h-60 object-cover"
+                              className="w-60 h-60 cursor-pointer object-cover"
                             />
                           </SwiperSlide>
                         ))}
@@ -292,6 +342,20 @@ const Vendor = () => {
           </div>
         )}
       </div>
+      {isOpen && (
+        <ViewMap
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          coordinates={vendor.coordinates}
+        />
+      )}
+      {currentImage && imageOpen && (
+        <ImageFull
+          imageOpen={imageOpen}
+          setImageOpen={setImageOpen}
+          image={currentImage}
+        />
+      )}
     </div>
   );
 };

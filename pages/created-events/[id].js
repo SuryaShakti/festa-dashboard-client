@@ -9,14 +9,15 @@ import {
   HeartIcon,
   UserCircleIcon,
 } from "@heroicons/react/outline";
+import { TrashIcon } from "@heroicons/react/solid";
 
 const createdEventDetails = () => {
   const [status, setStatus] = useState(0);
   const router = useRouter();
-   const [title, setTitle] = useState("");
-   const [description, setDescription] = useState("");
-   const [profilePic, setProfilePic] = useState("");
-   const [profilePicPath, setProfilePicPath] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [profilePic, setProfilePic] = useState("");
+  const [profilePicPath, setProfilePicPath] = useState("");
   const [data, setData] = useState();
   const [posts, setPosts] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -522,6 +523,9 @@ const createdEventDetails = () => {
                             />
                           </div>
                         </div>
+                        <div className=" ">
+                          <TrashIcon className="w-4 h-4 cursor-pointer" />
+                        </div>
                       </div>
                       <div>
                         {chatboxOpen ? (
@@ -546,9 +550,12 @@ const createdEventDetails = () => {
                           <HeartIcon className="w-4 cursor-pointer" />
                         </div>
                         <div className="flex items-center space-x-1">
-                          <div>{post.likeCount}</div>
+                          <div>{post.commentCount}</div>
                           <ChatAltIcon className="w-4 cursor-pointer" />
                         </div>
+                      </div>
+                      <div className=" ">
+                        <TrashIcon className="w-4 cursor-pointer" />
                       </div>
                     </div>
                   )

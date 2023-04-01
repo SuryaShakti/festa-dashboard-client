@@ -79,6 +79,8 @@ const index = () => {
     city: cityText,
     coordinates: [],
   });
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [currentPost, setCurrentPost] = useState({});
 
   const onChange = async (imageList, addUpdateIndex) => {
     // data for submit
@@ -678,6 +680,32 @@ const index = () => {
       });
   };
 
+  const deletePostHandler = () => {
+    const token = localStorage.getItem("token");
+    let config = {
+      method: "delete",
+      maxBodyLength: Infinity,
+      url: `https://api.test.festabash.com/v1/post/${currentPost._id}?event=${router?.query?.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        var _posts = posts.filter(
+          (post, index) => post._id !== response.data._id
+        );
+        setPosts(_posts);
+        setDeleteOpen(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   const onPostChange = async (imageList, addUpdateIndex) => {
     // data for submit
     console.log(imageList[0].file);
@@ -1026,7 +1054,7 @@ const index = () => {
                   post.image ? (
                     <div
                       key={index}
-                      className="w-full z-30 bg-gray-200 my-3 p-3 rounded-xl"
+                      className="relative w-full z-30 bg-gray-200 my-3 p-3 rounded-xl"
                     >
                       <img
                         className="w-full mb-2 rounded-lg"
@@ -1056,6 +1084,15 @@ const index = () => {
                           </div>
                         </div>
                       </div>
+                      <div
+                        onClick={() => {
+                          setCurrentPost(post);
+                          setDeleteOpen(true);
+                        }}
+                        className="bg-white shadow-sm rounded-full p-2 absolute top-1 right-1 cursor-pointer hover:bg-red-500 transition duration-200 hover:text-white text-red-500"
+                      >
+                        <TrashIcon className="w-4 cursor-pointer" />
+                      </div>
                       <div>
                         {chatboxOpen ? (
                           <div className="mt-2">djkhkdjhkd</div>
@@ -1065,7 +1102,7 @@ const index = () => {
                   ) : (
                     <div
                       key={index}
-                      className="w-full flex justify-between items-center bg-white bg-opacity-20 my-3 p-3 rounded-xl"
+                      className=" relative w-full flex justify-between items-center bg-white bg-opacity-20 my-3 p-3 rounded-xl"
                     >
                       <div className="flex-1">
                         <div className="text-lg font-bold mb-2">
@@ -1082,6 +1119,12 @@ const index = () => {
                           <div>{post.likeCount}</div>
                           <ChatAltIcon className="w-4 cursor-pointer" />
                         </div>
+                      </div>
+                      <div
+                        onClick={() => setDeleteOpen(true)}
+                        className="bg-white shadow-sm rounded-full p-2 absolute top-1 right-1 cursor-pointer hover:bg-red-500 transition duration-200 hover:text-white text-red-500"
+                      >
+                        <TrashIcon className="w-4 cursor-pointer" />
                       </div>
                     </div>
                   )
@@ -1738,6 +1781,70 @@ const index = () => {
                           </button>
                         </div>
                       ))}
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition appear show={deleteOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setDeleteOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Delete this post?
+                  </Dialog.Title>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      Are you sure you want to delete this post?
+                    </p>
+                  </div>
+
+                  <div className="flex w-full space-x-6 justify-end items-center mt-4">
+                    <button
+                      type="button"
+                      className="inline-flex px-6 justify-center rounded-md border border-transparent bg-indigo-600 py-1 text-sm font-medium text-white hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setDeleteOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => deletePostHandler()}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
