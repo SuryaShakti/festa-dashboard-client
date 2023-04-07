@@ -45,7 +45,7 @@ const Home = () => {
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/login/phone-login",
+      url: `${process.env.NEXT_PUBLIC_API_URL}login/phone-login`,
       headers: {
         "Content-Type": "application/json",
       },
@@ -64,9 +64,9 @@ const Home = () => {
       });
   };
 
-  const registerHandler = async () => {
+  const registerHandler = async (operation) => {
     if (phone.trim() !== "" && username.trim() !== "") {
-      await sendOtp();
+      await sendOtp(operation);
     } else {
       return;
     }
@@ -77,12 +77,12 @@ const Home = () => {
       phone: phone,
       operation: operation,
       role: 3,
-      otp: "123456",
+      otp: otp,
     });
 
     var config = {
       method: "patch",
-      url: "https://api.test.festabash.com/v1/login/phone-login",
+      url: `${process.env.NEXT_PUBLIC_API_URL}login/phone-login`,
       headers: {
         "Content-Type": "application/json",
       },
@@ -98,12 +98,13 @@ const Home = () => {
             role: 3,
             registrationToken: response.data.registrationToken,
             name: username,
+            operation: operation,
             phone: phone,
           });
 
           var config2 = {
             method: "post",
-            url: "https://api.test.festabash.com/v1/user",
+            url: `${process.env.NEXT_PUBLIC_API_URL}user`,
             headers: {
               "Content-Type": "application/json",
             },
@@ -114,7 +115,7 @@ const Home = () => {
             .then(function (response) {
               console.log(response.data);
               localStorage.setItem("token", response.data.accessToken);
-              localStorage.setItem("user", response.data.user);
+              localStorage.setItem("user", JSON.stringify(response.data.user));
               setError({ field: "", message: "" });
               router.push("/created-events");
             })

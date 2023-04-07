@@ -15,7 +15,7 @@ const createdEvents = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: "https://api.test.festabash.com/v1/event-management/event?$sort[createdAt]=-1&limit=100",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event?$sort[createdAt]=-1&limit=100`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -43,7 +43,7 @@ const createdEvents = () => {
     var config = {
       method: "delete",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/event-management/event/${id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -67,7 +67,7 @@ const createdEvents = () => {
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/event-management/event",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

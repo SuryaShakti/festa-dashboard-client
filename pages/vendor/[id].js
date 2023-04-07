@@ -40,7 +40,7 @@ const Vendor = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/vendor-management/vendor/${router.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}vendor-management/vendor/${router.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -69,7 +69,7 @@ const Vendor = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/vendor-management/vendor-package?vendor=${vendor._id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}vendor-management/vendor-package?vendor=${vendor._id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -25,7 +25,7 @@ const Vendors = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/category",
+      url: `${process.env.NEXT_PUBLIC_API_URL}category`,
     };
     setLoading(true);
     await axios(config)
@@ -45,7 +45,7 @@ const Vendors = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/vendor-management/vendor?categories.subCategories[$in]=${cat._id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}vendor-management/vendor?categories.subCategories[$in]=${cat._id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -107,7 +107,7 @@ const Vendors = () => {
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <Menu.Items className="absolute  mt-2 w-max px- origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <Menu.Items className="absolute  mt-2 w-full px- origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="px-1 py-1 ">
                     {categories?.map((cat, index) => (
                       <Menu.Item
@@ -120,7 +120,7 @@ const Vendors = () => {
                               active
                                 ? "bg-violet-500 text-white"
                                 : "text-gray-900"
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            } group flex  justify-center w-full items-center rounded-md px-2 py-2 text-sm`}
                           >
                             {cat.title}
                           </button>
@@ -159,7 +159,7 @@ const Vendors = () => {
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <Menu.Items className="absolute  mt-2 w-max px- origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <Menu.Items className="absolute  mt-2 w-full px- origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="px-1 py-1 ">
                     {selectedCat?.subCatgories?.map((cat, index) => (
                       <Menu.Item
@@ -173,9 +173,9 @@ const Vendors = () => {
                           <button
                             className={`${
                               active
-                                ? "bg-violet-500 text-white"
+                                ? "bg-violet-500 text-center"
                                 : "text-gray-900"
-                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                            } group flex justify-center w-full items-center text-center rounded-md px-2 py-2 text-sm`}
                           >
                             {cat.title}
                           </button>

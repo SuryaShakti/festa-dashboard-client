@@ -36,7 +36,7 @@ const feedback = () => {
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/feedback",
+      url: `${process.env.NEXT_PUBLIC_API_URL}feedback`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

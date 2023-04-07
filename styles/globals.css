@@ -39,3 +39,21 @@
   background-color: white;
 }
 
+.inputClass {
+  width: 130px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid #ececec;
+}
+
+.rdtPicker {
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+.rdtCounter{
+  height: 64px !important;
+}
+
+.rdtCounterSeparator {
+    line-height: 78px !important;
+}

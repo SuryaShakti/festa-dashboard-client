@@ -3,6 +3,19 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../src/components/Layouts/DefaultLayout";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import io from "socket.io-client";
+import feathers from "@feathersjs/feathers";
+import socketio from "@feathersjs/socketio-client";
+
+export const socketClient = io(process.env.NEXT_PUBLIC_SOCKET);
+export const socketApp = feathers();
+socketApp.configure(
+  socketio(socketClient, {
+    transports: ["websocket"],
+  })
+);
 
 function MyApp({ Component, pageProps }) {
   const Router = useRouter();
@@ -16,12 +29,22 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     if (Router.pathname !== "/") {
+      console.log("useeffect runned");
       setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
         Router.push("/");
         setLoading(false);
       } else {
+        setLoading(false);
+      }
+    } else {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        Router.push("/");
+        setLoading(false);
+      } else {
+        Router.push("/created-events");
         setLoading(false);
       }
     }

@@ -16,7 +16,7 @@ const invitedEvents = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: "https://api.test.festabash.com/v1/event-management/invited-events",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/invited-events`,
       params: {
         $limit: 1000,
       },

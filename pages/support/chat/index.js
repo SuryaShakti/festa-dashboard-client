@@ -1,11 +1,51 @@
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { socketClient, socketApp } from "../../_app";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ChatBox = () => {
   const router = useRouter();
   const [messages, setMessages] = useState();
   const [text, setText] = useState("");
+
+  useEffect(() => {
+    console.log(socketClient);
+    if (messages?.length > 0) {
+      const token = localStorage.getItem("token");
+      socketClient.emit(
+        "create",
+        "authentication",
+        {
+          strategy: "jwt",
+          accessToken: token,
+        },
+        function (e, res) {
+          if (e) {
+            console.log(e);
+            toast.error(e.message ? e.message : "error", "bottom-right");
+          } else {
+            console.log(res);
+            console.log("Authenticated");
+
+            socketApp
+              .service("v1/chat/chat-message")
+              .on("created", (message) => {
+                console.log("******", message);
+                const _message = [...messages];
+                console.log(messages);
+                console.log([..._message, message]);
+                setMessages([..._message, message]);
+              });
+          }
+        }
+      );
+    }
+    // socketClient.on("connect", () => {
+
+    // });
+  }, [messages]);
 
   const fetchMessages = async () => {
     const token = localStorage.getItem("token");
@@ -13,9 +53,12 @@ const ChatBox = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/chat/chat-message?supportTicket=${router.query.id}&$populate=createdBy&$sort[createdAt]=1`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}chat/chat-message?supportTicket=${router.query.id}&$populate=createdBy&$sort[createdAt]=1`,
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+      params: {
+        $limit: 1000,
       },
     };
 
@@ -40,7 +83,7 @@ const ChatBox = () => {
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/chat/chat-message?$populate=createdBy",
+      url: `${process.env.NEXT_PUBLIC_API_URL}chat/chat-message?$populate=createdBy`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

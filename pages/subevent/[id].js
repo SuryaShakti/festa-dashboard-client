@@ -47,7 +47,7 @@ const subevent = () => {
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/sub-event-management/sub-event/${router.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}sub-event-management/sub-event/${router.query.id}`,
       params: {
         $limit: 1000,
       },
@@ -105,7 +105,7 @@ const subevent = () => {
       body: formdata,
       redirect: "follow",
     };
-    await fetch("https://api.test.festabash.com/v1/upload", requestOptions)
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}upload`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result[0].link);
@@ -155,7 +155,7 @@ const subevent = () => {
     var config = {
       method: "patch",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/sub-event-management/sub-event/${router.query.id}?event=${router.query.event}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}sub-event-management/sub-event/${router.query.id}?event=${router.query.event}`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

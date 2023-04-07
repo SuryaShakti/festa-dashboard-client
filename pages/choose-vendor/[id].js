@@ -35,7 +35,7 @@ const Vendor = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/vendor-management/vendor/${router.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}vendor-management/vendor/${router.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -58,7 +58,7 @@ const Vendor = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/vendor-management/vendor-package?vendor=${vendor._id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}vendor-management/vendor-package?vendor=${vendor._id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -92,7 +92,7 @@ const Vendor = () => {
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/event-management/event-vendor",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-vendor`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -103,7 +103,9 @@ const Vendor = () => {
     axios(config)
       .then(function (response) {
         console.log(response.data);
-        router.push(`/messages/${response.data.conversationVendorData._id}`);
+        router.push(
+          `/messages/${response.data.conversationVendorData._id}?user=vendor&eventId=${router.query.eventId}&vendor=${response.data?._id}&status=${response.data.status}`
+        );
       })
       .catch(function (error) {
         console.log(error);

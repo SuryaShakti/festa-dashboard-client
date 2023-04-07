@@ -15,7 +15,7 @@ const SubCat = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/vendor-management/vendor?categories.subCategories[$in]=${router.query.subcat}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}vendor-management/vendor?categories.subCategories[$in]=${router.query.subcat}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

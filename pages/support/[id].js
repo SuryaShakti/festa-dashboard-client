@@ -2,6 +2,9 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useState, useEffect, Fragment } from "react";
 import Spinner from "../../src/components/Spinner";
+import io from "socket.io-client";
+import feathers from "@feathersjs/feathers";
+import socketio from "@feathersjs/socketio-client";
 
 const SupportDetails = () => {
   const router = useRouter();
@@ -13,7 +16,7 @@ const SupportDetails = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/help-center/support-ticket/63fac2db873454cd8467c87d?$populate=event&$sort[createdAt]=-1",
+      url: `${process.env.NEXT_PUBLIC_API_URL}help-center/support-ticket/${router.query.id}?$populate=event&$sort[createdAt]=-1`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -37,6 +40,8 @@ const SupportDetails = () => {
       getTicket();
     }
   }, [router.query.id]);
+
+  useEffect(() => {});
 
   function formatDate(isoDate) {
     const date = new Date(isoDate);

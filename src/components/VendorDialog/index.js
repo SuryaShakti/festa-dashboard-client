@@ -20,7 +20,7 @@ const VendorDialog = ({ vendorsOpen, setVendorsOpen, eventId }) => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/event-management/event-vendor?event=${eventId}&$populate=vendor`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-vendor?event=${eventId}&$populate=vendor`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

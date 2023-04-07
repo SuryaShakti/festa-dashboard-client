@@ -30,7 +30,7 @@ const Support = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: "https://api.test.festabash.com/v1/event-management/event?$sort[createdAt]=-1",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event?$sort[createdAt]=-1`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -69,7 +69,7 @@ const Support = () => {
       body: formdata,
       redirect: "follow",
     };
-    await fetch("https://api.test.festabash.com/v1/upload", requestOptions)
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}upload`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result[0].link);
@@ -95,7 +95,7 @@ const Support = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/help-center/support-ticket?$populate=event&$sort[createdAt]=-1",
+      url: `${process.env.NEXT_PUBLIC_API_URL}help-center/support-ticket?$populate=event&$sort[createdAt]=-1`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -130,6 +130,7 @@ const Support = () => {
   }
 
   const createSupportTicket = async () => {
+    const token = localStorage.getItem("token");
     var data = JSON.stringify({
       event: selectedEvent._id,
       description: description,
@@ -139,10 +140,9 @@ const Support = () => {
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/help-center/support-ticket",
+      url: `${process.env.NEXT_PUBLIC_API_URL}help-center/support-ticket`,
       headers: {
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJzdWIiOiI2M2MzY2EwNjAwMDNkYjM2YjNiM2U2MTAiLCJpYXQiOjE2NzcxNTk5NTAsImV4cCI6MTY3OTc1MTk1MCwiYXVkIjoiaHR0cHM6Ly95b3VyZG9tYWluLmNvbSIsImlzcyI6ImZlYXRoZXJzIiwianRpIjoiNDAzM2U3YjYtNWFhNC00ZjA1LTliMTgtNmFiZjQ5NGJmODI0In0.sTryq_tULACZoaXCmJgeSq5g92L22x2SHZuui-aQzV0",
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       data: data,
@@ -153,6 +153,7 @@ const Support = () => {
         console.log(JSON.stringify(response.data));
         const _tickets = tickets;
         setTickets([..._tickets, response.data]);
+        setOpen(false);
       })
       .catch(function (error) {
         console.log(error);
@@ -266,7 +267,7 @@ const Support = () => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full h-[90vh] max-w-2xl transform overflow-hidden p-6 text-left rounded-2xl bg-white align-middle shadow-xl transition-all flex flex-col">
+                <Dialog.Panel className="w-full  min-h-[90vh] max-w-2xl transform overflow-hidden p-6 text-left rounded-2xl bg-white align-middle shadow-xl transition-all flex flex-col">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
@@ -286,11 +287,11 @@ const Support = () => {
                           className="relative  w-full inline-block text-left mt-2"
                         >
                           <div>
-                            <Menu.Button className="z-50 inline-flex text-white hover:bg-gray-200 w-full  justify-between rounded-md px-4 py-2 text-sm font-medium border border-gray-300  hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-transparent focus-visible:ring-opacity-75">
+                            <Menu.Button className="z-50 inline-flex text-gray-600 hover:bg-gray-200 w-full  justify-between rounded-md px-4 py-2 text-sm font-medium border border-gray-300  hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-transparent focus-visible:ring-opacity-75">
                               {selectedEvent?.name
                                 ? data.filter(
                                     (data) => data._id === selectedEvent._id
-                                  )[0]?.title
+                                  )[0]?.name
                                 : "Select an event"}
                               <ChevronDownIcon
                                 className="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"

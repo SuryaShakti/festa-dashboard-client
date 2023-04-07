@@ -32,7 +32,7 @@ const InvitedEventDetails = () => {
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/likes",
+      url: `${process.env.NEXT_PUBLIC_API_URL}likes`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -53,7 +53,7 @@ const InvitedEventDetails = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/post?event=${router?.query?.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}post?event=${router?.query?.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -73,7 +73,7 @@ const InvitedEventDetails = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/invited-events/${router?.query?.id}?$populate="user"`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/invited-events/${router?.query?.id}?$populate="user"`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -94,7 +94,7 @@ const InvitedEventDetails = () => {
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event-feed?event=${router.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-feed?event=${router.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

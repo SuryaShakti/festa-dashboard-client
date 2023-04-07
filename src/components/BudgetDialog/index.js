@@ -42,7 +42,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/event-management/event-budget?event=${eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-budget?event=${eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -66,7 +66,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/category",
+      url: `${process.env.NEXT_PUBLIC_API_URL}category`,
     };
     setLoading(true);
     await axios(config)
@@ -104,7 +104,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
       var config = {
         method: "patch",
         maxBodyLength: Infinity,
-        url: `https://api.test.festabash.com/v1/event-management/event-budget/${budget._id}?event=${eventId}`,
+        url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-budget/${budget._id}?event=${eventId}`,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -174,7 +174,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/sub-event-management/sub-event-budget/${event._id}?event=${eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}sub-event-management/sub-event-budget/${event._id}?event=${eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -245,7 +245,7 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
     var config = {
       method: "patch",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/sub-event-management/sub-event-budget/${selectedSubEvent._id}?event=${eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}sub-event-management/sub-event-budget/${selectedSubEvent._id}?event=${eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -500,7 +500,9 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
                           >
                             <div>
                               <Menu.Button className="inline-flex w-full justify-center rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                                Category
+                                {selectedCat?.title
+                                  ? selectedCat?.title
+                                  : "Category"}
                                 <ChevronDownIcon
                                   className="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
                                   aria-hidden="true"
@@ -521,7 +523,10 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
                                   {categories?.map((cat, index) => (
                                     <Menu.Item
                                       key={index}
-                                      onClick={() => setSelectedCat(cat)}
+                                      onClick={() => {
+                                        setSelectedCat(cat);
+                                        console.log(selectedCat);
+                                      }}
                                     >
                                       {({ active }) => (
                                         <button
@@ -546,7 +551,9 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
                           >
                             <div>
                               <Menu.Button className="inline-flex w-full justify-center rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                                Sub Category
+                                {selectedSubCat?.title
+                                  ? selectedSubCat.title
+                                  : "Sub Category"}
                                 <ChevronDownIcon
                                   className="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
                                   aria-hidden="true"
@@ -603,14 +610,16 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
                                 }}
                                 placeholder={"Enter the budget"}
                               />
-                              {divAmount > updatedTotal && (
-                                <div className="text-xs text-red-500">
-                                  Amount exceeded from remaining amount of{" "}
-                                  {updatedTotal}
-                                </div>
-                              )}
                             </div>
                           </div>
+                        </div>
+                        <div className="h-5">
+                          {divAmount > updatedTotal && (
+                            <div className="text-xs text-right w-full text-red-500">
+                              Amount exceeded from remaining amount of{" "}
+                              {updatedTotal}
+                            </div>
+                          )}
                         </div>
                         <textarea
                           className="w-full my-3 border rounded-lg px-4 border-gray-400"
@@ -679,10 +688,10 @@ const BudgetDialog = ({ budgetOpen, setBudgetOpen, eventId, subevents }) => {
                           {totalBudgetLoading ? (
                             <div className="flex w-max mx-auto justify-between items-center space-x-2">
                               <Spinner />
-                              <div>Save</div>
+                              <div>Save Sub Event Budget </div>
                             </div>
                           ) : (
-                            "Save"
+                            "Save Sub Event Budget"
                           )}
                         </button>
                       </div>

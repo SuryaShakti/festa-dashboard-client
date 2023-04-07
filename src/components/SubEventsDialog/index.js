@@ -62,7 +62,7 @@ const SubEventDialog = ({
       body: formdata,
       redirect: "follow",
     };
-    await fetch("https://api.test.festabash.com/v1/upload", requestOptions)
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}upload`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result[0].link);
@@ -118,7 +118,7 @@ const SubEventDialog = ({
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/sub-event-management/sub-event/",
+      url: `${process.env.NEXT_PUBLIC_API_URL}sub-event-management/sub-event/`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -130,6 +130,7 @@ const SubEventDialog = ({
       .then(function (response) {
         console.log(response.data);
         setLoading(false);
+        setCreateSubEventOpen(false);
       })
       .catch(function (error) {
         console.log(error);
@@ -365,7 +366,7 @@ const SubEventDialog = ({
                         className="w-full flex space-x-3"
                       >
                         <CalendarIcon className="w-5" />
-                        <div>Seelct a day</div>
+                        <div>Select a day</div>
                       </div>
                     </div>
                     {showCalendar && (

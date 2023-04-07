@@ -25,7 +25,7 @@ const ViewVendors = ({ page = "vendor", eventId }) => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/category",
+      url: `${process.env.NEXT_PUBLIC_API_URL}category`,
     };
     setLoading(true);
     await axios(config)
@@ -45,7 +45,7 @@ const ViewVendors = ({ page = "vendor", eventId }) => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/vendor-management/vendor?categories.subCategories[$in]=${cat._id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}vendor-management/vendor?categories.subCategories[$in]=${cat._id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

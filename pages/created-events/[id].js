@@ -44,7 +44,7 @@ const createdEventDetails = () => {
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/likes",
+      url: `${process.env.NEXT_PUBLIC_API_URL}likes`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -70,7 +70,7 @@ const createdEventDetails = () => {
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event-guest?event=${router?.query?.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-guest?event=${router?.query?.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -99,7 +99,7 @@ const createdEventDetails = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/post?event=${router?.query?.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}post?event=${router?.query?.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -119,7 +119,7 @@ const createdEventDetails = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event/${router?.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event/${router?.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -140,7 +140,7 @@ const createdEventDetails = () => {
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/sub-event-management/sub-event?event=${router?.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}sub-event-management/sub-event?event=${router?.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -161,7 +161,7 @@ const createdEventDetails = () => {
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event-feed?event=${router.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-feed?event=${router.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -181,7 +181,7 @@ const createdEventDetails = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event-cohost?event=${router.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-cohost?event=${router.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -225,7 +225,7 @@ const createdEventDetails = () => {
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/event-management/event-guest",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-guest`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -251,7 +251,7 @@ const createdEventDetails = () => {
 
     var config = {
       method: "delete",
-      url: `https://api.test.festabash.com/v1/event-management/event-guest/${id}?event=${router.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-guest/${id}?event=${router.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -285,7 +285,7 @@ const createdEventDetails = () => {
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/event-management/event-cohost",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-cohost`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -310,7 +310,7 @@ const createdEventDetails = () => {
 
     var config = {
       method: "delete",
-      url: `https://api.test.festabash.com/v1/event-management/event-cohost/${id}?event=${router.query.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-cohost/${id}?event=${router.query.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

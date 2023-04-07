@@ -15,16 +15,16 @@ const messages = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/chat/conversation-vendor?$populate=lastMessage",
+      url: `${process.env.NEXT_PUBLIC_API_URL}chat/conversation-vendor?$populate=lastMessage&$populate=vendor`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
       params: {
         $limit: 1000,
-        // $populate: {
-        //   path: "lastMessage",
-        //   populate: ["createdBy"],
-        // },
+        $populate: {
+          path: "vendor",
+          populate: ["categories"],
+        },
       },
     };
 
@@ -43,7 +43,7 @@ const messages = () => {
 
     var config = {
       method: "get",
-      url: "https://api.test.festabash.com/v1/chat/conversation?$populate=users&$populate=lastMessage",
+      url: `${process.env.NEXT_PUBLIC_API_URL}chat/conversation?$populate=users&$populate=lastMessage`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -103,7 +103,7 @@ const messages = () => {
             ? data?.map((chat, index) => (
                 <div
                   key={index}
-                  onClick={() => router.push(`messages/${chat._id}`)}
+                  onClick={() => router.push(`messages/${chat._id}?user=user`)}
                   className="w-full flex my-3 items-center bg-gray-100 bg-opacity-20 shadow-xl cursor-pointer rounded-xl p-2 "
                 >
                   <div className="flex items-center flex-1">
@@ -136,7 +136,7 @@ const messages = () => {
                     <img src={chat.avatar} className="w-14 h-14 rounded-full" />
                     <div className="ml-3 space-y-1">
                       <div className="text-lg text-white font-bold">
-                        {chat.name}
+                        {chat.vendor.brand}
                       </div>
                       <div className="text-xs text-gray-100">
                         {chat?.lastMessage?.createdBy?.name

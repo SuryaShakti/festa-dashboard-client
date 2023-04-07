@@ -6,6 +6,7 @@ import { Dialog, RadioGroup, Transition } from "@headlessui/react";
 import {
   ChatAltIcon,
   HeartIcon,
+  PaperAirplaneIcon,
   PencilAltIcon,
   TrashIcon,
   UserCircleIcon,
@@ -22,6 +23,10 @@ import "react-toastify/dist/ReactToastify.css";
 import BudgetDialog from "../../src/components/BudgetDialog";
 import SubEventDialog from "../../src/components/SubEventsDialog";
 import VendorDialog from "../../src/components/VendorDialog";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import ImageFull from "../../src/components/imageFull";
+import BudgetDialogNew from "../../src/components/BudgetDialogNew";
 
 const index = () => {
   const router = useRouter();
@@ -50,10 +55,13 @@ const index = () => {
   const [status, setStatus] = useState(0);
   const [data, setData] = useState([]);
   const [dateOpen, setDateOpen] = useState(false);
+  const [endTime, setEndTime] = useState("");
+  const [startDateTime, setStartDateTime] = useState("");
+  const [endDateTime, setEndDateTime] = useState("");
   const [selectedDates, setSelectedDates] = useState([
     {
       startDate: new Date(),
-      endDate: null,
+      endDate: new Date(),
       key: "selection",
     },
   ]);
@@ -81,6 +89,8 @@ const index = () => {
   });
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [currentPost, setCurrentPost] = useState({});
+  const [imageOpen, setImageOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState("");
 
   const onChange = async (imageList, addUpdateIndex) => {
     // data for submit
@@ -115,7 +125,7 @@ const index = () => {
       var config = {
         method: "post",
         maxBodyLength: Infinity,
-        url: "https://api.test.festabash.com/v1/post",
+        url: `${process.env.NEXT_PUBLIC_API_URL}post`,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -141,6 +151,109 @@ const index = () => {
           setCreatingPost(false);
         });
     }
+  };
+
+  const handleStartTimeChange = (date) => {
+    console.log(date);
+    const selectedDateTime = new Date(
+      selectedDates[0].startDate.toISOString().substring(0, 10) +
+        "T" +
+        date.format("HH:mm:ss")
+    ).toISOString();
+    console.log(selectedDateTime);
+    setStartDateTime(selectedDateTime);
+  };
+
+  const handleEndTimeChange = (date) => {
+    const selectedDateTime = new Date(
+      selectedDates[0].endDate.toISOString().substring(0, 10) +
+        "T" +
+        date.format("HH:mm:ss")
+    ).toISOString();
+    setEndTime(date.toISOString());
+    setEndDateTime(selectedDateTime);
+  };
+
+  const [attachments, setAttachments] = useState([]);
+  const [attachmentsUploading, setAttachmentsUploading] = useState(false);
+  const [attachmentsUrl, setAttachmentsUrl] = useState([]);
+
+  const onAttachmentsChange = async (imageList) => {
+    console.log(imageList);
+    setAttachments(imageList);
+
+    const _data = imageList.map((item) => item.file);
+    console.log(_data);
+
+    await attachmentsUpload(_data);
+  };
+
+  const onAttachmentRemove = (index) => {
+    let newImages = [...attachments];
+    newImages.splice(index, 1);
+    setAttachments(newImages);
+  };
+
+  const attachmentsUpload = async (blob) => {
+    const token = localStorage.getItem("token");
+
+    var formdata = new FormData();
+    // formdata.append("file", blob);
+    blob.map((item) => formdata.append("file", item));
+
+    console.log(formdata);
+    setAttachmentsUploading(true);
+
+    var requestOptions = {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formdata,
+      redirect: "follow",
+    };
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}upload`, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        setAttachmentsUrl([...attachmentsUrl, result.map((item) => item.link)]);
+        let data2 = JSON.stringify({
+          event: eventId,
+          feeds: result.map((item, index) => {
+            return {
+              image: item.link,
+              thumbnailImage: item.link,
+            };
+          }),
+        });
+
+        let config = {
+          method: "post",
+          maxBodyLength: Infinity,
+          url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-feed`,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          data: data2,
+        };
+
+        axios
+          .request(config)
+          .then((response) => {
+            console.log(response.data);
+            setPhotos([...photos, ...response.data]);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
+        setAttachmentsUploading(false);
+      })
+      .catch((error) => {
+        console.log("error", error);
+        setAttachmentsUploading(false);
+      });
   };
 
   const dataURLtoFile = (dataurl, filename) => {
@@ -177,7 +290,7 @@ const index = () => {
       body: formdata,
       redirect: "follow",
     };
-    await fetch("https://api.test.festabash.com/v1/upload", requestOptions)
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}upload`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result[0].link);
@@ -195,7 +308,7 @@ const index = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event/${router?.query.eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event/${router?.query.eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -221,6 +334,14 @@ const index = () => {
             key: "selection",
           },
         ]);
+        setStartDateTime(
+          response?.data?.startTime
+            ? new Date(response.data.startTime)
+            : new Date()
+        );
+        setEndDateTime(
+          response?.data?.endTime ? new Date(response.data.endTime) : null
+        );
         setProfilePicUrl(
           response?.data?.attachments[0] ? response.data.attachments[0] : ""
         );
@@ -236,7 +357,7 @@ const index = () => {
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/sub-event-management/sub-event?event=${router.query.eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}sub-event-management/sub-event?event=${router.query.eventId}`,
       params: {
         $limit: 1000,
       },
@@ -259,7 +380,7 @@ const index = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/post?event=${router.query.eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}post?event=${router.query.eventId}`,
       params: {
         $limit: 1000,
       },
@@ -285,7 +406,7 @@ const index = () => {
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event-feed?event=${router.query.eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-feed?event=${router.query.eventId}`,
       params: {
         $limit: 1000,
       },
@@ -352,7 +473,7 @@ const index = () => {
     setGuestLoading(true);
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/event-management/event-guest",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-guest`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -380,7 +501,7 @@ const index = () => {
 
     var config = {
       method: "delete",
-      url: `https://api.test.festabash.com/v1/event-management/event-guest/${id}?event=${eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-guest/${id}?event=${eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -430,7 +551,7 @@ const index = () => {
       var config = {
         method: "patch",
         maxBodyLength: Infinity,
-        url: `https://api.test.festabash.com/v1/event-management/event/${router.query.eventId}`,
+        url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event/${router.query.eventId}`,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -464,7 +585,7 @@ const index = () => {
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/event-management/event-cohost",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-cohost`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -491,7 +612,7 @@ const index = () => {
 
     var config = {
       method: "delete",
-      url: `https://api.test.festabash.com/v1/event-management/event-cohost/${id}?event=${eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-cohost/${id}?event=${eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -525,11 +646,11 @@ const index = () => {
     }
 
     description?.trim() !== "" ? (data.description = description) : null;
-    selectedDates[0]?.startDate && selectedDates[0]?.endDate
-      ? (data.startTime = selectedDates[0].startDate)
+    startDateTime?.trim() !== "" && endDateTime?.trim() !== ""
+      ? (data.startTime = startDateTime)
       : null;
-    selectedDates[0].endDate && selectedDates[0].startDate
-      ? (data.endTime = selectedDates[0].endDate)
+    startDateTime?.trim() !== "" && endDateTime?.trim() !== ""
+      ? (data.endTime = endDateTime)
       : null;
     selectedEventType ? (data.eventType = selectedEventType) : null;
     profilePicUrl ? (data.attachments[0] = profilePicUrl) : null;
@@ -545,7 +666,7 @@ const index = () => {
     var config = {
       method: "patch",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/event-management/event/${eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event/${eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -575,7 +696,7 @@ const index = () => {
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event-guest?event=${router.query.eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-guest?event=${router.query.eventId}`,
       params: {
         $limit: 1000,
       },
@@ -599,7 +720,7 @@ const index = () => {
     const token = localStorage.getItem("token");
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/event-management/event-cohost?event=${router.query.eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-cohost?event=${router.query.eventId}`,
       params: {
         $limit: 1000,
       },
@@ -625,7 +746,7 @@ const index = () => {
     var config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: "https://api.test.festabash.com/v1/event-management/event-type",
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-type`,
       params: {
         $limit: 1000,
       },
@@ -663,7 +784,7 @@ const index = () => {
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/likes",
+      url: `${process.env.NEXT_PUBLIC_API_URL}likes`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -685,7 +806,7 @@ const index = () => {
     let config = {
       method: "delete",
       maxBodyLength: Infinity,
-      url: `https://api.test.festabash.com/v1/post/${currentPost._id}?event=${router?.query?.eventId}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}post/${currentPost._id}?event=${router?.query?.eventId}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -777,6 +898,95 @@ const index = () => {
   };
 
   const [toggle, setToggle] = useState(0);
+
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
+  const [deletePhotOpen, setDeletePhotoOpen] = useState(false);
+
+  const deletePhotoHandler = async () => {
+    const token = localStorage.getItem("token");
+    let config = {
+      method: "delete",
+      maxBodyLength: Infinity,
+      url: `https://api.festabash.com/v1/event-management/event-feed/${currentImage._id}?event=${router?.query?.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios
+      .request(config)
+      .then((response) => {
+        console.log(response.data);
+
+        var _photos = photos.filter(
+          (photo, index) => photo._id !== response.data._id
+        );
+        setPhotos(_photos);
+        setDeletePhotoOpen(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const commentsHandler = async (id) => {
+    const token = localStorage.getItem("token");
+
+    setChatboxOpen(!chatboxOpen);
+    let config = {
+      method: "get",
+      maxBodyLength: Infinity,
+      url: `${process.env.NEXT_PUBLIC_API_URL}comment?post=${id}&$populate=user`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        $limit: 1000,
+      },
+    };
+
+    await axios
+      .request(config)
+      .then((response) => {
+        console.log("Comments----", response.data);
+        setComments(response.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const postComment = async (id) => {
+    const token = localStorage.getItem("token");
+    let data = JSON.stringify({
+      post: id,
+      description: commentText,
+    });
+
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: "https://api.festabash.com/v1/comment?$populate=user",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(response.data);
+        const _comments = [...comments];
+        setComments([..._comments, response.data]);
+        setCommentText("");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <div className="flex bg-[#0D0821] z-30 rounded-3xl min-h-[95vh] flex-col px-3 md:px-10 py-4 md:mr-6">
@@ -1078,7 +1288,10 @@ const index = () => {
                           <div className="flex items-center space-x-1">
                             <div>{post.commentCount}</div>
                             <ChatAltIcon
-                              onClick={() => setChatboxOpen(!chatboxOpen)}
+                              onClick={() => {
+                                commentsHandler(post._id);
+                                setCurrentPost(post);
+                              }}
                               className="w-4 cursor-pointer"
                             />
                           </div>
@@ -1094,8 +1307,35 @@ const index = () => {
                         <TrashIcon className="w-4 cursor-pointer" />
                       </div>
                       <div>
-                        {chatboxOpen ? (
-                          <div className="mt-2">djkhkdjhkd</div>
+                        {chatboxOpen && post._id === currentPost._id ? (
+                          <div>
+                            <div className="font-bold">Comments</div>
+                            <div className="mt-px border-t border-t-white pt-2">
+                              {comments?.map((comment, index) => (
+                                <div className="bg-gray-100 p-1 rounded-md shadow my-1 border-b-white">
+                                  <div>{comment.description}</div>
+                                  <div className="text-xs">
+                                    {comment?.user?.name}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="mt-2 w-full flex items-center justify-between space-x-3">
+                              <input
+                                value={commentText}
+                                onChange={(e) => setCommentText(e.target.value)}
+                                className="flex-1 border rounded-md px-2 py-1 border-gray-600"
+                                placeholder="Enter your comment"
+                              />
+                              <button
+                                disabled={commentText?.trim() === ""}
+                                onClick={() => postComment(post._id)}
+                                className="bg-indigo-500 disabled:bg-slate-400 rounded-full p-1 shadow"
+                              >
+                                <PaperAirplaneIcon className="text-white w-5 rotate-90" />
+                              </button>
+                            </div>
+                          </div>
                         ) : null}
                       </div>
                     </div>
@@ -1116,10 +1356,46 @@ const index = () => {
                           <HeartIcon className="w-4 cursor-pointer" />
                         </div>
                         <div className="flex items-center space-x-1">
-                          <div>{post.likeCount}</div>
-                          <ChatAltIcon className="w-4 cursor-pointer" />
+                          <div>{post.commentCount}</div>
+                          <ChatAltIcon
+                            onClick={() => {
+                              commentsHandler(post._id);
+                              setCurrentPost(post);
+                            }}
+                            className="w-4 cursor-pointer"
+                          />
                         </div>
                       </div>
+                      {chatboxOpen && post._id === currentPost._id ? (
+                        <div>
+                          <div className="font-bold">Comments</div>
+                          <div className="mt-px border-t border-t-white pt-2">
+                            {comments?.map((comment, index) => (
+                              <div className="bg-gray-100 p-1 rounded-md shadow my-1 border-b-white">
+                                <div>{comment.description}</div>
+                                <div className="text-xs">
+                                  {comment?.user?.name}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-2 w-full flex items-center justify-between space-x-3">
+                            <input
+                              value={commentText}
+                              onChange={(e) => setCommentText(e.target.value)}
+                              className="flex-1 border rounded-md px-2 py-1 border-gray-600"
+                              placeholder="Enter your comment"
+                            />
+                            <button
+                              disabled={commentText?.trim() === ""}
+                              onClick={() => postComment(post._id)}
+                              className="bg-indigo-500 disabled:bg-slate-400 rounded-full p-1 shadow"
+                            >
+                              <PaperAirplaneIcon className="text-white w-5 rotate-90" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
                       <div
                         onClick={() => setDeleteOpen(true)}
                         className="bg-white shadow-sm rounded-full p-2 absolute top-1 right-1 cursor-pointer hover:bg-red-500 transition duration-200 hover:text-white text-red-500"
@@ -1134,11 +1410,12 @@ const index = () => {
               <div className="mt-3 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-3">
                 <div className="flex">
                   <ImageUploading
-                    // multiple
-                    // maxNumber={}
-                    value={photo}
-                    onChange={onPhotoChange}
+                    multiple
+                    value={attachments}
+                    onChange={onAttachmentsChange}
+                    maxNumber={10}
                     dataURLKey="data_url"
+                    onImageRemove={onAttachmentRemove}
                     acceptType={["jpg", "jpeg", "png", "svg"]}
                   >
                     {({
@@ -1160,7 +1437,7 @@ const index = () => {
                         >
                           +
                         </button>
-                        {photoUploading && (
+                        {attachmentsUploading && (
                           <div>
                             <Spinner />
                           </div>
@@ -1170,11 +1447,24 @@ const index = () => {
                   </ImageUploading>
                 </div>
                 {photos.map((photo, index) => (
-                  <div>
+                  <div className="relative">
                     <img
-                      className="w-32 h-32 rounded-xl shadow-lg"
+                      onClick={() => {
+                        setCurrentImage(photo.image);
+                        setImageOpen(true);
+                      }}
+                      className="w-32 h-32 rounded-xl shadow-lg cursor-pointer"
                       src={photo.thumbnailImage}
                     />
+                    <div
+                      onClick={() => {
+                        setCurrentImage(photo);
+                        setDeletePhotoOpen(true);
+                      }}
+                      className="bg-white shadow-sm rounded-full p-px absolute top-1 right-1 cursor-pointer hover:bg-red-500 transition duration-200 hover:text-white text-red-500"
+                    >
+                      <TrashIcon className="w-4 cursor-pointer" />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1284,7 +1574,7 @@ const index = () => {
           </div>
         )}
       </div>
-      <div className="w-full flex justify-end space-x-3">
+      <div className="z-50 w-full flex justify-end space-x-3">
         <button
           onClick={() => draftHandler()}
           disabled={draftLoading}
@@ -1368,8 +1658,16 @@ const index = () => {
           eventId={router?.query?.eventId}
         />
       )}
+      {/* {budgetOpen && (
+         <BudgetDialog
+          budgetOpen={budgetOpen}
+          setBudgetOpen={setBudgetOpen}
+          subevents={subevents}
+          eventId={router?.query?.eventId}
+        />
+      )} */}
       {budgetOpen && (
-        <BudgetDialog
+        <BudgetDialogNew
           budgetOpen={budgetOpen}
           setBudgetOpen={setBudgetOpen}
           subevents={subevents}
@@ -1494,6 +1792,32 @@ const index = () => {
                       }}
                       minDate={new Date()}
                     />
+                  </div>
+                  <div className="mx-auto w-max grid grid-cols-2 gap-4 mb-10">
+                    <div>
+                      <label>Start Time:</label>
+                      <Datetime
+                        value={startDateTime ? new Date(startDateTime) : null}
+                        onChange={handleStartTimeChange}
+                        dateFormat={false}
+                        inputProps={{
+                          placeholder: "Start time",
+                          className: "inputClass",
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label>End Time:</label>
+                      <Datetime
+                        value={endDateTime ? new Date(endDateTime) : null}
+                        onChange={handleEndTimeChange}
+                        dateFormat={false}
+                        inputProps={{
+                          placeholder: "End time",
+                          className: "inputClass",
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <div className="mt-4 w-full flex justify-end">
@@ -1852,6 +2176,77 @@ const index = () => {
           </div>
         </Dialog>
       </Transition>
+      <Transition appear show={deletePhotOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setDeletePhotoOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Delete this image?
+                  </Dialog.Title>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      Are you sure you want to delete this image?
+                    </p>
+                  </div>
+
+                  <div className="flex w-full space-x-6 justify-end items-center mt-4">
+                    <button
+                      type="button"
+                      className="inline-flex px-6 justify-center rounded-md border border-transparent bg-indigo-600 py-1 text-sm font-medium text-white hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setDeletePhotoOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => deletePhotoHandler()}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      {currentImage && imageOpen && (
+        <ImageFull
+          imageOpen={imageOpen}
+          setImageOpen={setImageOpen}
+          image={currentImage}
+        />
+      )}
     </div>
   );
 };

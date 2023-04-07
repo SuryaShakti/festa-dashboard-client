@@ -1,18 +1,63 @@
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Spinner from "../../src/components/Spinner";
+import { socketClient, socketApp } from "../_app";
 
 const ChatBox = () => {
   const router = useRouter();
   const [messages, setMessages] = useState();
   const [text, setText] = useState("");
+  const [addLoading, setAddLoading] = useState(false);
+
+  useEffect(() => {
+    console.log(socketClient);
+    if (messages?.length > 0) {
+      const token = localStorage.getItem("token");
+      socketClient.emit(
+        "create",
+        "authentication",
+        {
+          strategy: "jwt",
+          accessToken: token,
+        },
+        function (e, res) {
+          if (e) {
+            console.log(e);
+            toast.error(e.message ? e.message : "error", "bottom-right");
+          } else {
+            console.log(res);
+            console.log("Authenticated admin");
+
+            socketApp
+              .service("v1/chat/chat-message")
+              .on("created", (message) => {
+                console.log("******", message);
+                const _message = [...messages];
+                console.log(messages);
+                console.log([..._message, message]);
+                setMessages([..._message, message]);
+              });
+          }
+        }
+      );
+    }
+    // socketClient.on("connect", () => {
+
+    // });
+  }, [messages]);
 
   const fetchMessages = async () => {
     const token = localStorage.getItem("token");
 
     var config = {
       method: "get",
-      url: `https://api.test.festabash.com/v1/chat/chat-message?$sort[createdAt]=1&$populate=createdBy&conversation=${router?.query?.id}`,
+      url:
+        router.query.user === "user"
+          ? `${process.env.NEXT_PUBLIC_API_URL}chat/chat-message?$sort[createdAt]=1&$populate=createdBy&conversation=${router?.query?.id}`
+          : `${process.env.NEXT_PUBLIC_API_URL}chat/chat-message?$sort[createdAt]=1&$populate=createdBy&conversationVendor=${router?.query?.id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -30,15 +75,20 @@ const ChatBox = () => {
 
   const messageSnedHandler = async () => {
     const token = localStorage.getItem("token");
-
-    var data = JSON.stringify({
-      conversation: router?.query.id,
-      message: text,
-    });
+    var data;
+    router.query.user === "user"
+      ? (data = JSON.stringify({
+          conversation: router?.query.id,
+          message: text,
+        }))
+      : (data = JSON.stringify({
+          conversationVendor: router?.query.id,
+          message: text,
+        }));
 
     var config = {
       method: "post",
-      url: "https://api.test.festabash.com/v1/chat/chat-message?$populate=createdBy",
+      url: `${process.env.NEXT_PUBLIC_API_URL}chat/chat-message?$populate=createdBy`,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -58,6 +108,42 @@ const ChatBox = () => {
       });
   };
 
+  const addVendor = async () => {
+    const token = localStorage.getItem("token");
+    setAddLoading(true);
+    let data = JSON.stringify({
+      status: 1,
+    });
+
+    let config = {
+      method: "patch",
+      maxBodyLength: Infinity,
+      url: `${process.env.NEXT_PUBLIC_API_URL}event-management/event-vendor/${router.query.vendor}?event=${router.query.eventId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    await axios
+      .request(config)
+      .then((response) => {
+        console.log(response.data);
+        toast.success("Vendor added successfully", {
+          position: "bottom-right",
+        });
+        setAddLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setAddLoading(false);
+        toast.error("Something went wrong. please try again later.", {
+          position: "bottom-right",
+        });
+      });
+  };
+
   useEffect(() => {
     if (router?.query?.id) {
       console.log(router.query.id);
@@ -66,9 +152,30 @@ const ChatBox = () => {
     }
   }, [router.query.id]);
 
-  
   return (
     <div className="flex z-50 bg-[#0D0821]  rounded-3xl min-h-[95vh] flex-col px-10 py-4 md:mr-6">
+      {router?.query?.user === "vendor" && router.query.status === "2" && (
+        <div className="flex h-10 text-white border border-white items-center">
+          <div className="w-9/12 px-3">
+            Do you want to approve this vendor for your event?
+          </div>
+          <div className="w-3/12 h-full border-l border-white text-center">
+            <button
+              onClick={() => addVendor()}
+              className="w-full h-full text-center text-white hover:bg-gray-100 hover:bg-opacity-20"
+            >
+              {addLoading ? (
+                <div className="flex justify-center items-center space-x-3">
+                  {" "}
+                  <Spinner /> <div>Approve</div>
+                </div>
+              ) : (
+                "Approve"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
       <div className="min-h-[95vh] flex flex-col py-4">
         <div className="flex-1 z-50 flex justify-end flex-col rounded-2xl p-2 sm:p-3 md:p-5">
           <div className="z-50 flex flex-col">
@@ -88,7 +195,7 @@ const ChatBox = () => {
                     src={message?.createdBy?.avatar}
                   ></img>
                 )}
-                <div className="ml-2 md:ml-4 max-w-[70%] md:max-w-[50%] p-3 text-xs md:text-sm bg-white rounded-bl-xl rounded-r-xl">
+                <div className="ml-2 my-1 md:ml-4 max-w-[70%] md:max-w-[50%] p-3 text-xs md:text-sm bg-white rounded-bl-xl rounded-r-xl">
                   {message?.message}
                 </div>
               </div>
