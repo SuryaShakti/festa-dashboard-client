@@ -7,6 +7,8 @@ import Spinner from "../../src/components/Spinner";
 import ReactStars from "react-rating-stars-component";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Import Swiper styles
 import "swiper/css";
@@ -24,6 +26,41 @@ const Vendor = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState("");
+  const [description, setDescription] = useState("");
+
+  const giveReviewHandler = async () => {
+    const token = localStorage.getItem("token");
+
+    let data = JSON.stringify({
+      entityType: "vendor",
+      entityId: router.query.id,
+      rating: 4,
+      review: description,
+    });
+
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: "https://api.festabash.com/v1/rating",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(response.data);
+        toast.success("Your review has successfuly saved.", {
+          position: "bottom-right",
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const thirdExample = {
     size: 20,
@@ -32,7 +69,9 @@ const Vendor = () => {
     value: vendor?.averageRating ? vendor?.averageRating : 0,
     color: "#cccccc",
     activeColor: "yellow",
-    onChange: (newValue) => {},
+    onChange: (newValue) => {
+      return;
+    },
   };
 
   const getDetails = async () => {
@@ -335,7 +374,31 @@ const Vendor = () => {
                     </div>
                   </div>
                 ) : (
-                  ""
+                  <div className="flex flex-col justify-start items-start mt-5">
+                    <div className="text-xl text-white font-semibold ">
+                      Send us your feedback to us!
+                    </div>
+                    <ReactStars
+                      emptyIcon={<i className="far fa-star"></i>}
+                      halfIcon={<i className="fa fa-star-half-alt"></i>}
+                      fullIcon={<i className="fa fa-star"></i>}
+                      {...thirdExample}
+                    />
+                    <textarea
+                      className="border p-3 w-full border-gray-400 bg-transparent text-white  rounded-xl md:w-1/2"
+                      value={description}
+                      placeholder="Describe your feedback"
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={10}
+                    />
+
+                    <button
+                      onClick={() => giveReviewHandler()}
+                      className="w-full md:w-[200px] mt-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-xl"
+                    >
+                      Submit
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

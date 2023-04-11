@@ -64,7 +64,7 @@ const feedback = () => {
           </div>
         </div>
       </div>
-      <div className="z-50 first-letter:mt-5">
+      <div className="z-50 mt-5">
         <div className="text-xl text-white font-semibold ">
           Send us your feedback to us!
         </div>
